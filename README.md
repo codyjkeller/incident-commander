@@ -1,28 +1,32 @@
-# 🛡️ Incident Commander
+# Incident Commander: CISO Edition
 
-**A Cybersecurity Governance & Risk Simulation**
+> "Heavy is the head that wears the headset."
 
-## 🚨 Mission Brief
-**Incident Commander** is a browser-based strategy simulation that puts players in the seat of a CISO (Chief Information Security Officer). 
+**Incident Commander** is a browser-based strategy simulation that puts you in the seat of a CISO (Chief Information Security Officer). Inspired by games like *Reigns*, you must balance four volatile metrics to survive the fiscal year.
 
-In the real world, security is not just about hacking—it's about **Resource Management**, **Risk Acceptance**, and **Strategic Decision Making**. This tool gamifies those constraints.
+## How to Play
+You are presented with a series of binary choices (cards). Swiping Left or Right will impact your resources. If any resource hits **0** or **100** (for Risk), you are fired.
 
-[**👉 Click Here to Play the Live Demo**](#) *(Add your Streamlit link here after deploying)*
+### The 4 Metrics:
+* 💵 **Budget:** Run out, and the board dissolves your department.
+* 🗣️ **Reputation:** Lose trust, and you are fired.
+* 🔥 **Risk:** Hit 100%, and you suffer a catastrophic breach.
+* ⏳ **Bandwidth:** Run out, and your team quits from burnout.
 
-## 🎯 Learning Objectives
-This project demonstrates the core "Soft Skills" of Cybersecurity:
-- **Risk Assessment:** Evaluating threats (Phishing, Zero-Day, Supply Chain) against their potential impact.
-- **Budget Governance:** Managing a finite security budget ($50k) effectively over a fiscal year.
-- **Incident Response:** Making high-pressure decisions during active breach scenarios (e.g., Log4Shell events).
+## Tech Stack
+* **Engine:** Python (Streamlit)
+* **State Management:** Session State for persistence.
+* **Data:** JSON-based scenario loader.
+* **CI/CD:** GitHub Actions for automated linting.
 
-## 🛠️ Technical Architecture
-- **Engine:** Python & Streamlit
-- **State Management:** Uses `st.session_state` to track persistence across turns (Budget vs. Security Posture).
-- **Logic:** Randomized event deck system with weighted outcomes based on player choices.
-
-## 🚀 Installation
-
-1. **Clone the repository:**
+## Running Locally
+Clone the repo:
    ```bash
    git clone [https://github.com/codyjkeller/incident-commander.git](https://github.com/codyjkeller/incident-commander.git)
    cd incident-commander
+
+## Install Requirements
+pip install -r requirements.txt
+
+## Run the game:
+streamlit run game.py
