@@ -1,157 +1,217 @@
 import streamlit as st
 import random
-import json
-import pandas as pd
-import os
+import time
 
-# --- CONFIG & CSS ---
-st.set_page_config(page_title="Incident Commander: Reigns", page_icon="👑", layout="centered")
+# --- CONFIGURATION & ASSETS ---
+st.set_page_config(page_title="CISO Commander", page_icon="🛡️", layout="centered")
 
+# --- CUSTOM CSS FOR "REIGNS" STYLE UI ---
 st.markdown("""
 <style>
-    .stApp { background-color: #1a1a2e; color: #e94560; }
-    .card-container {
-        background-color: #16213e; border: 2px solid #0f3460;
-        border-radius: 15px; padding: 40px; text-align: center;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px;
+    /* Main Background */
+    .stApp {
+        background-color: #0E1117;
+        color: #FAFAFA;
     }
-    .emoji-icon { font-size: 80px; margin-bottom: 20px; }
-    .scenario-title { color: #fff; font-size: 28px; font-weight: bold; }
-    .scenario-desc { color: #a2a8d3; font-size: 18px; margin-top: 10px; }
     
-    /* Metrics Styling */
-    div[data-testid="stMetric"] {
-        background-color: #0f3460; border-radius: 8px; padding: 10px;
-        border: 1px solid #533483;
+    /* The Game Card Container */
+    .game-card {
+        background-color: #1E232F;
+        border-radius: 20px;
+        padding: 40px;
+        margin: 20px auto;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        border: 2px solid #333;
+        text-align: center;
+        max-width: 600px;
+        transition: transform 0.2s;
     }
-    div[data-testid="stMetricLabel"] { color: #a2a8d3; }
-    div[data-testid="stMetricValue"] { color: #fff; }
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        border-color: #4B4B4B;
+    }
+    
+    /* Typography */
+    .card-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #E0E0E0;
+        margin-bottom: 20px;
+    }
+    .card-emoji {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+    .card-desc {
+        font-size: 18px;
+        color: #B0B0B0;
+        line-height: 1.6;
+        margin-bottom: 30px;
+    }
+    
+    /* Stats Bar Custom Styling */
+    .stat-box {
+        background-color: #262730;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #444;
+    }
+    .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-value { font-size: 24px; font-weight: bold; }
+    
+    /* Neon Text Colors for Stats */
+    .color-budget { color: #00FF94; } /* Neon Green */
+    .color-rep { color: #00E5FF; }    /* Neon Blue */
+    .color-risk { color: #FF2E63; }   /* Neon Red */
+    .color-bw { color: #FFC700; }     /* Neon Yellow */
+
 </style>
 """, unsafe_allow_html=True)
 
-# --- LOAD DATA ---
-@st.cache_data
-def load_scenarios():
-    if not os.path.exists("scenarios.json"):
-        return []
-    with open("scenarios.json", "r") as f:
-        return json.load(f)
-
-# --- INITIALIZE STATE ---
-if "state" not in st.session_state:
-    st.session_state.state = {
-        # METRICS (0-100 Scale)
-        "budget": 50,      # 💵 Money
-        "rep": 50,         # 🗣️ Reputation
-        "risk": 20,        # 🔥 Risk (Keep Low!)
-        "time": 50,        # ⏳ Bandwidth
-        
-        "week": 1,
-        "history": [],
-        "game_over": False,
-        "outcome": "",
-        "scenario": None
+# --- EVENT LIBRARY ---
+EVENTS = [
+    {
+        "id": 1,
+        "emoji": "💀",
+        "title": "Ransomware Detected",
+        "text": "An endpoint in Finance is encrypted. The attacker demands $50k in Bitcoin.",
+        "choice_a": "Pay the Ransom ($50k)",
+        "choice_b": "Restore from Backup (2 days)",
+        "impact_a": {"budget": -20, "risk": -10, "rep": -5, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +5, "rep": +5, "bandwidth": -20}
+    },
+    {
+        "id": 2,
+        "emoji": "🕵️",
+        "title": "Vendor Audit",
+        "text": "A key vendor failed their SOC 2 audit. Sales wants to onboard them anyway to close a deal.",
+        "choice_a": "Block the Vendor",
+        "choice_b": "Grant Exception",
+        "impact_a": {"budget": 0, "risk": -10, "rep": +10, "bandwidth": -5},
+        "impact_b": {"budget": +10, "risk": +20, "rep": -5, "bandwidth": 0}
+    },
+    {
+        "id": 3,
+        "emoji": "🐛",
+        "title": "Zero-Day Rumor",
+        "text": "Twitter is buzzing about a vulnerability in our VPN. No patch exists yet.",
+        "choice_a": "Disable VPN (Halt Work)",
+        "choice_b": "Monitor Logs & Pray",
+        "impact_a": {"budget": -10, "risk": -20, "rep": -10, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +30, "rep": 0, "bandwidth": -10}
+    },
+    {
+        "id": 4,
+        "emoji": "🎤",
+        "title": "Tech Conference",
+        "text": "You are invited to speak at Black Hat. It's great exposure but requires prep time.",
+        "choice_a": "Accept Invitation",
+        "choice_b": "Decline (Focus on Work)",
+        "impact_a": {"budget": -5, "risk": 0, "rep": +20, "bandwidth": -15},
+        "impact_b": {"budget": 0, "risk": 0, "rep": -5, "bandwidth": +5}
+    },
+    {
+        "id": 5,
+        "emoji": "🍕",
+        "title": "Developer Mutiny",
+        "text": "Engineers are complaining that the new security tools are 'too slow'. They want them disabled.",
+        "choice_a": "Enforce Controls",
+        "choice_b": "Relax Policies",
+        "impact_a": {"budget": 0, "risk": -5, "rep": -15, "bandwidth": -5},
+        "impact_b": {"budget": 0, "risk": +15, "rep": +10, "bandwidth": 0}
     }
+]
 
-# Load scenarios if needed
-if st.session_state.state["scenario"] is None:
-    scenarios = load_scenarios()
-    if scenarios:
-        st.session_state.state["scenario"] = random.choice(scenarios)
+# --- GAME STATE MANAGEMENT ---
+if 'stats' not in st.session_state:
+    st.session_state['stats'] = {'budget': 50, 'rep': 50, 'risk': 20, 'bandwidth': 50}
+if 'week' not in st.session_state:
+    st.session_state['week'] = 1
+if 'deck' not in st.session_state:
+    # Create a fresh shuffled deck of indices
+    deck = list(range(len(EVENTS)))
+    random.shuffle(deck)
+    st.session_state['deck'] = deck
+if 'current_card_idx' not in st.session_state:
+    # Pop the first card
+    st.session_state['current_card_idx'] = st.session_state['deck'].pop()
 
-s = st.session_state.state
+# --- HELPER FUNCTIONS ---
+def update_stats(impact):
+    """Updates stats and keeps them within 0-100 bounds."""
+    for key, value in impact.items():
+        st.session_state['stats'][key] = max(0, min(100, st.session_state['stats'][key] + value))
 
-# --- GAME OVER SCREEN ---
-if s["game_over"]:
-    st.title("💀 GAME OVER")
-    st.markdown(f"### {s['outcome']}")
-    st.markdown("---")
+def next_turn():
+    """Advances the game week and loads the next card."""
+    st.session_state['week'] += 1
     
-    # Analytics
-    st.write("#### Final Metrics")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("💵 Budget", f"{s['budget']}%")
-    col2.metric("🗣️ Reputation", f"{s['rep']}%")
-    col3.metric("🔥 Risk", f"{s['risk']}%")
-    col4.metric("⏳ Bandwidth", f"{s['time']}%")
+    # Refill deck if empty
+    if not st.session_state['deck']:
+        deck = list(range(len(EVENTS)))
+        random.shuffle(deck)
+        st.session_state['deck'] = deck
     
-    st.write("#### Decision History")
-    for log in s["history"]:
-        st.caption(log)
-        
-    if st.button("Try Again"):
-        del st.session_state.state
+    # Load next card
+    st.session_state['current_card_idx'] = st.session_state['deck'].pop()
+    
+    # Force a UI refresh
+    time.sleep(0.1) # Smooth transition feel
+    st.rerun()
+
+# --- GAME OVER LOGIC ---
+s = st.session_state['stats']
+if s['risk'] >= 100:
+    st.error("💀 GAME OVER: You were breached massively. Risk hit 100%.")
+    if st.button("Restart Career"):
+        st.session_state.clear()
+        st.rerun()
+    st.stop()
+elif s['budget'] <= 0:
+    st.error("💸 GAME OVER: You ran out of budget. The CFO fired you.")
+    if st.button("Restart Career"):
+        st.session_state.clear()
         st.rerun()
     st.stop()
 
-# --- MAIN HUD (METRICS) ---
-st.title(f"👑 Week {s['week']}")
+# --- HEADER & STATS DISPLAY ---
+st.title("👑 Incident Commander")
+st.markdown(f"### 📅 Week {st.session_state['week']}")
 
-# Metrics Row
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("Budget", f"{s['budget']}", delta_color="normal")
-m2.metric("Reputation", f"{s['rep']}", delta_color="normal")
-m3.metric("Risk", f"{s['risk']}", delta_color="inverse") # Inverse because Red (High) is bad
-m4.metric("Bandwidth", f"{s['time']}", delta_color="normal")
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.markdown(f"""<div class="stat-box"><div class="stat-label">Budget</div><div class="stat-value color-budget">{s['budget']}</div></div>""", unsafe_allow_html=True)
+with col2:
+    st.markdown(f"""<div class="stat-box"><div class="stat-label">Reputation</div><div class="stat-value color-rep">{s['rep']}</div></div>""", unsafe_allow_html=True)
+with col3:
+    st.markdown(f"""<div class="stat-box"><div class="stat-label">Risk</div><div class="stat-value color-risk">{s['risk']}%</div></div>""", unsafe_allow_html=True)
+with col4:
+    st.markdown(f"""<div class="stat-box"><div class="stat-label">Bandwidth</div><div class="stat-value color-bw">{s['bandwidth']}</div></div>""", unsafe_allow_html=True)
 
-# Progress Bars for visual flair
-st.caption("🔥 Risk Meter (Don't hit 100!)")
-st.progress(min(s['risk'], 100) / 100)
+# --- CARD RENDERER ---
+current_event = EVENTS[st.session_state['current_card_idx']]
 
-# --- CARD UI ---
-scen = s["scenario"]
-if scen:
-    st.markdown(f"""
-    <div class="card-container">
-        <div class="emoji-icon">{scen['image']}</div>
-        <div class="scenario-title">{scen['title']}</div>
-        <div class="scenario-desc">{scen['desc']}</div>
-    </div>
-    """, unsafe_allow_html=True)
+# Render the card container using HTML/CSS
+st.markdown(f"""
+<div class="game-card">
+    <div class="card-emoji">{current_event['emoji']}</div>
+    <div class="card-title">{current_event['title']}</div>
+    <div class="card-desc">{current_event['text']}</div>
+</div>
+""", unsafe_allow_html=True)
 
-    # --- CONTROLS (Swipe Left / Swipe Right) ---
-    c_left, c_right = st.columns(2)
-    
-    choice = None
-    
-    # Left Button
-    if c_left.button(f"⬅️ {scen['left']['text']}", use_container_width=True):
-        choice = scen['left']
-        
-    # Right Button
-    if c_right.button(f"{scen['right']['text']} ➡️", use_container_width=True):
-        choice = scen['right']
+# --- DECISION BUTTONS ---
+# Using columns to center buttons slightly better
+b_col1, b_col2 = st.columns(2)
 
-    # --- PROCESS TURN ---
-    if choice:
-        # Apply Impacts
-        s['budget'] = max(0, min(100, s['budget'] + choice['impact']['budget']))
-        s['rep']    = max(0, min(100, s['rep']    + choice['impact']['rep']))
-        s['risk']   = max(0, min(100, s['risk']   + choice['impact']['risk']))
-        s['time']   = max(0, min(100, s['time']   + choice['impact']['time']))
-        
-        # Log History
-        s['history'].insert(0, f"Wk {s['week']}: {scen['title']} -> {choice['text']}")
-        
-        # Check Win/Loss
-        if s['budget'] <= 0:
-            s['game_over'] = True
-            s['outcome'] = "Bankrupt! The board dissolved your department."
-        elif s['rep'] <= 0:
-            s['game_over'] = True
-            s['outcome'] = "Fired! You lost the trust of the executives."
-        elif s['risk'] >= 100:
-            s['game_over'] = True
-            s['outcome'] = "Breach! The company suffered a catastrophic data loss."
-        elif s['time'] <= 0:
-            s['game_over'] = True
-            s['outcome'] = "Burnout! Your team quit en masse."
-        elif s['week'] >= 52:
-            s['game_over'] = True
-            s['outcome'] = "Victory! You survived the fiscal year."
+with b_col1:
+    if st.button(f"⬅️ {current_event['choice_a']}", use_container_width=True):
+        update_stats(current_event['impact_a'])
+        next_turn()
 
-        # Next Turn
-        s['week'] += 1
-        scenarios = load_scenarios()
-        s['scenario'] = random.choice(scenarios)
-        st.rerun()
+with b_col2:
+    if st.button(f"➡️ {current_event['choice_b']}", use_container_width=True):
+        update_stats(current_event['impact_b'])
+        next_turn()
