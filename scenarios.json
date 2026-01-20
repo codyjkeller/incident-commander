@@ -1,24 +1,66 @@
 [
     {
-        "id": "ransomware",
-        "title": "Ransomware Detected",
-        "desc": "An endpoint in Finance is encrypted. The attacker demands 2 Bitcoin.",
-        "icon": "💀",
-        "choices": [
-            {"text": "Isolate & Restore from Backup", "cost": 5000, "sec": 10, "msg": "Downtime occurred, but we didn't pay the ransom."},
-            {"text": "Pay the Ransom", "cost": 15000, "sec": -10, "msg": "You paid. You are now a target for repeat attacks."},
-            {"text": "Ignore (It's just one laptop)", "cost": 0, "sec": -30, "msg": "It spread to the Domain Controller. Critical Breach."}
-        ]
+        "id": "vendor_ai",
+        "title": "Vendor AI Request",
+        "desc": "Marketing wants to use a free AI tool to generate ad copy. It is not SOC 2 compliant.",
+        "image": "🤖",
+        "left": {
+            "text": "Block It (Too Risky)",
+            "impact": { "budget": 0, "rep": -15, "risk": -10, "time": 0 },
+            "msg": "Marketing hates you, but the data is safe."
+        },
+        "right": {
+            "text": "Approve It (Move Fast)",
+            "impact": { "budget": 0, "rep": 15, "risk": 20, "time": 0 },
+            "msg": "Ad campaign launched early. Data privacy is... questionable."
+        }
     },
     {
-        "id": "phishing",
-        "title": "Spear Phishing Campaign",
-        "desc": "Emails targeting the C-Suite have been detected.",
-        "icon": "🎣",
-        "choices": [
-            {"text": "Deploy Anti-Phishing Tools", "cost": 3000, "sec": 15, "msg": "Emails blocked. Crisis averted."},
-            {"text": "Send Warning Email", "cost": 0, "sec": -5, "msg": "The CEO clicked the link anyway."},
-            {"text": "Run Simulation Training", "cost": 1000, "sec": 5, "msg": "Awareness improved slightly."}
-        ]
+        "id": "ransomware_alert",
+        "title": "Ransomware Detected",
+        "desc": "An endpoint in Finance is encrypted. The attacker demands $50k.",
+        "image": "💀",
+        "left": {
+            "text": "Pay the Ransom",
+            "impact": { "budget": -50, "rep": -10, "risk": -5, "time": 10 },
+            "msg": "You paid. Finance is back online, but you funded crime."
+        },
+        "right": {
+            "text": "Restore from Backup",
+            "impact": { "budget": -10, "rep": 5, "risk": 0, "time": -30 },
+            "msg": "It took the team all weekend, but we didn't negotiate with terrorists."
+        }
+    },
+    {
+        "id": "hiring_freeze",
+        "title": "CFO Cuts Budget",
+        "desc": "The CFO wants to cut your 'Penetration Testing' budget to save Q4 numbers.",
+        "image": "📉",
+        "left": {
+            "text": "Accept the Cut",
+            "impact": { "budget": 20, "rep": 15, "risk": 25, "time": 0 },
+            "msg": "CFO is happy. You are flying blind on vulnerabilities."
+        },
+        "right": {
+            "text": "Fight for Budget",
+            "impact": { "budget": 0, "rep": -20, "risk": -10, "time": -10 },
+            "msg": "You kept the money, but the CFO is ignoring your emails now."
+        }
+    },
+    {
+        "id": "log4j",
+        "title": "Zero-Day: Log4j",
+        "desc": "Critical vulnerability found in your Java stack. Patching requires downtime.",
+        "image": "🚨",
+        "left": {
+            "text": "Patch Immediately",
+            "impact": { "budget": -5, "rep": -15, "risk": -40, "time": -20 },
+            "msg": "Production went down for 2 hours. Customers are angry, but safe."
+        },
+        "right": {
+            "text": "Schedule for Weekend",
+            "impact": { "budget": 0, "rep": 5, "risk": 30, "time": 5 },
+            "msg": "You rolled the dice. Let's hope no one scans us before Saturday."
+        }
     }
 ]
