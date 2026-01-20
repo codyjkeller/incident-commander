@@ -10,268 +10,244 @@ st.markdown("""
 <style>
     /* Main Background */
     .stApp {
-        background-color: #0E1117;
-        color: #FAFAFA;
+        background-color: #0b0d12;
+        color: #e0e6ed;
+        font-family: 'Helvetica Neue', sans-serif;
     }
     
     /* CARD STYLING */
     .game-card {
-        background-color: #1E232F;
-        border-radius: 20px;
-        padding: 40px;
+        background-color: #161b22;
+        border-radius: 12px;
+        padding: 0px;
         margin: 20px auto;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        border: 2px solid #333;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        border: 1px solid #30363d;
         text-align: center;
-        transition: all 0.3s ease;
+        overflow: hidden;
+        max-width: 650px;
     }
-    .game-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 40px rgba(0,229,255,0.1); /* Subtle Blue Glow */
-        border-color: #00E5FF;
+    .card-img-container {
+        width: 100%;
+        height: 250px;
+        background-color: #000;
+        overflow: hidden;
+        border-bottom: 1px solid #30363d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-    .card-emoji { font-size: 80px; margin-bottom: 20px; }
-    .card-title { font-size: 26px; font-weight: 800; color: #FFF; margin-bottom: 15px; }
-    .card-desc { font-size: 18px; color: #CCC; line-height: 1.6; margin-bottom: 30px; }
+    .card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.9;
+    }
+    .card-content { padding: 30px; }
+    .card-title { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: 0.5px; }
+    .card-desc { font-size: 16px; color: #8b949e; line-height: 1.5; margin-bottom: 25px; }
 
     /* STATS BAR */
     .stat-box {
-        background-color: #262730;
-        padding: 15px;
-        border-radius: 12px;
+        background-color: #161b22;
+        padding: 12px;
+        border-radius: 8px;
         text-align: center;
-        border: 1px solid #444;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        border: 1px solid #30363d;
     }
-    .stat-label { font-size: 12px; color: #AAA; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
-    .stat-value { font-size: 28px; font-weight: 900; }
+    .stat-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+    .stat-value { font-size: 24px; font-weight: 700; font-family: 'Courier New', monospace; }
     
-    /* Neon Colors */
-    .color-budget { color: #00FF94; text-shadow: 0 0 10px rgba(0,255,148,0.3); }
-    .color-rep { color: #00E5FF; text-shadow: 0 0 10px rgba(0,229,255,0.3); }
-    .color-risk { color: #FF2E63; text-shadow: 0 0 10px rgba(255,46,99,0.3); }
-    .color-bw { color: #FFC700; text-shadow: 0 0 10px rgba(255,199,0,0.3); }
+    /* Colors */
+    .c-green { color: #3fb950; }
+    .c-blue { color: #58a6ff; }
+    .c-red { color: #f85149; }
+    .c-yellow { color: #d29922; }
 
-    /* BUTTON FIXES */
-    /* Force buttons to be visible and distinct */
+    /* BUTTONS */
     div.stButton > button {
-        background-color: #2B313E; 
-        color: #FFFFFF;
-        border: 1px solid #4A4A4A;
-        border-radius: 10px;
-        padding: 15px 20px;
-        font-size: 16px;
-        font-weight: bold;
+        background-color: #21262d; 
+        color: #c9d1d9;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 12px 20px;
+        font-size: 14px;
+        font-weight: 600;
         width: 100%;
         transition: all 0.2s;
     }
     div.stButton > button:hover {
-        background-color: #3A4250;
-        border-color: #00E5FF;
-        color: #00E5FF;
-        transform: scale(1.02);
+        background-color: #30363d;
+        border-color: #8b949e;
+        color: #fff;
     }
 
-    /* IMPACT DELTAS (The visual cues) */
-    .impact-positive { color: #00FF94; font-weight: bold; }
-    .impact-negative { color: #FF2E63; font-weight: bold; }
-    .impact-neutral { color: #888; }
-    
+    /* FEEDBACK PILL */
+    .feedback-pill {
+        background: #161b22;
+        border: 1px solid #30363d;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: #8b949e;
+        display: inline-block;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # --- GAME DATA ---
+# NOTE: Replace 'https://placehold.co/600x400/161b22/FFF' with actual image paths or URLs
 EVENTS = [
     {
         "id": 1,
-        "emoji": "💀",
-        "title": "Ransomware Attack",
-        "text": "Finance reports their laptops are encrypted. Hackers want $50k in Bitcoin immediately.",
-        "choice_a": "Pay Ransom ($50k)",
-        "choice_b": "Restore Backup (2 Days)",
-        "impact_a": {"budget": -20, "risk": -10, "rep": -5, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +5, "rep": +5, "bandwidth": -20}
+        "image": "https://images.unsplash.com/photo-1563206767-5b1d97299337?auto=format&fit=crop&w=800&q=80", # Hacker/Code
+        "title": "Ransomware Detected",
+        "text": "SOC alerts a lateral movement attempt in Finance. The payload is encrypted.",
+        "choice_a": "Isolate Subnet (Downtime)",
+        "choice_b": "Monitor to Trace Source",
+        "impact_a": {"budget": 0, "risk": -15, "rep": -5, "bandwidth": -5},
+        "impact_b": {"budget": 0, "risk": +20, "rep": 0, "bandwidth": -10}
     },
     {
         "id": 2,
-        "emoji": "🕵️",
-        "title": "Vendor Audit Fail",
-        "text": "A critical AI vendor failed their SOC 2 audit. The CEO wants to use them anyway.",
-        "choice_a": "Block Vendor",
-        "choice_b": "Sign Waiver",
-        "impact_a": {"budget": 0, "risk": -10, "rep": +10, "bandwidth": -5},
-        "impact_b": {"budget": +10, "risk": +20, "rep": -5, "bandwidth": 0}
+        "image": "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=80", # Meeting/Audit
+        "title": "Vendor Compliance Fail",
+        "text": "A critical AI vendor failed their SOC 2 Type 2. The CTO needs this tool for a product launch.",
+        "choice_a": "Block Integration",
+        "choice_b": "Accept Risk Exception",
+        "impact_a": {"budget": 0, "risk": -5, "rep": -10, "bandwidth": -5},
+        "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
     },
     {
         "id": 3,
-        "emoji": "🐛",
-        "title": "Zero-Day Leak",
-        "text": "Twitter is buzzing about a flaw in our VPN. No patch exists yet.",
-        "choice_a": "Kill VPN (Halt Work)",
-        "choice_b": "Monitor Logs",
-        "impact_a": {"budget": -10, "risk": -20, "rep": -10, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +30, "rep": 0, "bandwidth": -10}
+        "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80", # Matrix Code
+        "title": "Zero-Day Rumors",
+        "text": "Dark web chatter suggests a vulnerability in our VPN concentrator.",
+        "choice_a": "Emergency Patch (Overtime)",
+        "choice_b": "Wait for Vendor Advisory",
+        "impact_a": {"budget": -10, "risk": -10, "rep": +5, "bandwidth": -20},
+        "impact_b": {"budget": 0, "risk": +25, "rep": 0, "bandwidth": 0}
     },
     {
         "id": 4,
-        "emoji": "🎤",
-        "title": "Keynote Invite",
-        "text": "You are invited to speak at Black Hat. It's great PR, but you're drowning in work.",
-        "choice_a": "Accept (Travel)",
-        "choice_b": "Decline (Focus)",
-        "impact_a": {"budget": -5, "risk": 0, "rep": +25, "bandwidth": -20},
-        "impact_b": {"budget": 0, "risk": 0, "rep": -5, "bandwidth": +10}
+        "image": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80", # Boardroom
+        "title": "Budget Cuts",
+        "text": "CFO asks you to reduce spend by 10% to help Q4 numbers.",
+        "choice_a": "Cut Training Budget",
+        "choice_b": "Reduce Tool Licensing",
+        "impact_a": {"budget": +10, "risk": +5, "rep": -5, "bandwidth": +5},
+        "impact_b": {"budget": +10, "risk": +15, "rep": 0, "bandwidth": -5}
     },
-    {
-        "id": 5,
-        "emoji": "💾",
-        "title": "Legacy Server Dies",
-        "text": "The payroll server from 1998 finally died. It wasn't backed up.",
-        "choice_a": "Hire Data Recovery",
-        "choice_b": "Manual Entry (All Hands)",
-        "impact_a": {"budget": -15, "risk": -5, "rep": 0, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +10, "rep": -10, "bandwidth": -30}
-    }
 ]
 
-# --- STATE INITIALIZATION ---
-if 'game_active' not in st.session_state:
-    st.session_state['game_active'] = False
-if 'stats' not in st.session_state:
-    st.session_state['stats'] = {'budget': 50, 'rep': 50, 'risk': 20, 'bandwidth': 50}
-if 'week' not in st.session_state:
-    st.session_state['week'] = 1
-if 'deck' not in st.session_state:
+# --- STATE MANAGEMENT ---
+def init_state():
+    if 'game_active' not in st.session_state: st.session_state['game_active'] = False
+    if 'stats' not in st.session_state: st.session_state['stats'] = {'budget': 50, 'rep': 50, 'risk': 20, 'bandwidth': 50}
+    if 'week' not in st.session_state: st.session_state['week'] = 1
+    if 'deck' not in st.session_state: refill_deck()
+    if 'current_card' not in st.session_state: draw_card()
+    if 'last_impact' not in st.session_state: st.session_state['last_impact'] = None
+
+def refill_deck():
     deck = list(range(len(EVENTS)))
     random.shuffle(deck)
     st.session_state['deck'] = deck
-if 'current_card_idx' not in st.session_state:
-    st.session_state['current_card_idx'] = st.session_state['deck'].pop()
-if 'last_impact' not in st.session_state:
-    st.session_state['last_impact'] = None
 
-# --- FUNCTIONS ---
-def start_game():
-    st.session_state['game_active'] = True
-    st.session_state['stats'] = {'budget': 50, 'rep': 50, 'risk': 20, 'bandwidth': 50}
-    st.session_state['week'] = 1
-    st.session_state['last_impact'] = None
-    st.rerun()
+def draw_card():
+    if not st.session_state['deck']: refill_deck()
+    idx = st.session_state['deck'].pop()
+    st.session_state['current_card'] = EVENTS[idx]
 
 def apply_choice(impact):
-    # Store impact for visual cue on next turn
     st.session_state['last_impact'] = impact
-    
-    # Update Stats
-    for key, value in impact.items():
-        st.session_state['stats'][key] = max(0, min(100, st.session_state['stats'][key] + value))
-    
-    # Advance Turn
+    for k, v in impact.items():
+        st.session_state['stats'][k] = max(0, min(100, st.session_state['stats'][k] + v))
     st.session_state['week'] += 1
-    if not st.session_state['deck']:
-        deck = list(range(len(EVENTS)))
-        random.shuffle(deck)
-        st.session_state['deck'] = deck
-    st.session_state['current_card_idx'] = st.session_state['deck'].pop()
-    
+    draw_card()
     time.sleep(0.1)
     st.rerun()
 
-def render_impact_cue():
-    """Displays a summary of what changed in the last turn."""
+init_state()
+
+# --- UI COMPONENTS ---
+def render_stats():
+    s = st.session_state['stats']
+    c1, c2, c3, c4 = st.columns(4)
+    c1.markdown(f"""<div class="stat-box"><div class="stat-label">Budget</div><div class="stat-value c-green">{s['budget']}k</div></div>""", unsafe_allow_html=True)
+    c2.markdown(f"""<div class="stat-box"><div class="stat-label">Trust</div><div class="stat-value c-blue">{s['rep']}</div></div>""", unsafe_allow_html=True)
+    c3.markdown(f"""<div class="stat-box"><div class="stat-label">Risk</div><div class="stat-value c-red">{s['risk']}%</div></div>""", unsafe_allow_html=True)
+    c4.markdown(f"""<div class="stat-box"><div class="stat-label">Team</div><div class="stat-value c-yellow">{s['bandwidth']}</div></div>""", unsafe_allow_html=True)
+
+def render_feedback():
     if st.session_state['last_impact']:
         imp = st.session_state['last_impact']
-        cols = st.columns(4)
-        
-        # Helper to format delta
-        def fmt(val):
-            if val > 0: return f"⬆ +{val}", "impact-positive"
-            if val < 0: return f"⬇ {val}", "impact-negative"
-            return "-", "impact-neutral"
-
-        # Show deltas under the stats
-        items = [('budget', imp['budget']), ('rep', imp['rep']), ('risk', imp['risk']), ('bandwidth', imp['bandwidth'])]
-        
-        # We create a small notification bar
-        html_str = "<div style='text-align:center; padding: 10px; background: rgba(255,255,255,0.05); border-radius:10px; margin-bottom: 20px; display: flex; justify-content: space-around;'>"
-        for k, v in items:
-            text, css = fmt(v)
+        changes = []
+        for k, v in imp.items():
             if v != 0:
-                html_str += f"<span>{k.title()}: <span class='{css}'>{text}</span></span>"
-        html_str += "</div>"
-        st.markdown(html_str, unsafe_allow_html=True)
+                symbol = "▲" if v > 0 else "▼"
+                color = "#3fb950" if (k != 'risk' and v > 0) or (k == 'risk' and v < 0) else "#f85149"
+                changes.append(f"<span style='color:{color}; margin: 0 10px;'>{k.upper()} {symbol}{abs(v)}</span>")
+        
+        if changes:
+            st.markdown(f"<div style='text-align:center; margin-top:10px;'><div class='feedback-pill'>{''.join(changes)}</div></div>", unsafe_allow_html=True)
 
-# --- START SCREEN ---
+# --- SCREENS ---
 if not st.session_state['game_active']:
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
-    st.markdown("<h1 style='text-align: center; font-size: 60px;'>🛡️ Incident Commander</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; font-size: 20px; color: #888;'>Balance Budget, Reputation, and Risk as the new CISO.</p>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
+    # START SCREEN
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; font-size: 50px;'>🛡️ CISO COMMANDER</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #8b949e;'>Survive 1 Year as the CISO of a targeted enterprise.</p>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("🚀 START NEW CAREER", use_container_width=True):
-            start_game()
-            
-    st.markdown("<p style='text-align: center; font-size: 14px; color: #555; margin-top: 50px;'>v1.0 | Created with Streamlit</p>", unsafe_allow_html=True)
+    # Just a placeholder hero image for the menu
+    st.image("https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1000&q=80", use_column_width=True)
+    
+    if st.button("INITIALIZE SEQUENCE", use_container_width=True):
+        st.session_state['game_active'] = True
+        st.rerun()
 
 else:
-    # --- MAIN GAME LOOP ---
-    
-    # 1. SIDEBAR MENU
+    # MAIN GAME
     with st.sidebar:
-        st.title("Pause Menu")
-        st.write("Current Career:")
-        st.progress(st.session_state['week'] / 52, text=f"Week {st.session_state['week']}")
-        if st.button("Quit / Restart"):
-            st.session_state['game_active'] = False
+        st.header("PAUSE")
+        st.progress(min(100, st.session_state['week'] * 2), text=f"Week {st.session_state['week']} / 52")
+        if st.button("Resign (Reset)"):
+            st.session_state.clear()
             st.rerun()
-
-    # 2. CHECK GAME OVER
+            
+    # Check Game Over
     s = st.session_state['stats']
-    if s['risk'] >= 100:
-        st.error("💀 GAME OVER: You were breached massively. Risk hit 100%.")
-        if st.button("Try Again"): start_game()
-        st.stop()
-    elif s['budget'] <= 0:
-        st.error("💸 GAME OVER: You ran out of budget. The CFO fired you.")
-        if st.button("Try Again"): start_game()
-        st.stop()
-    elif s['bandwidth'] <= 0:
-        st.error("😫 GAME OVER: Burnout! Your entire security team quit.")
-        if st.button("Try Again"): start_game()
+    if s['risk'] >= 100 or s['budget'] <= 0 or s['bandwidth'] <= 0:
+        st.error("❌ TERMINATED: CRITICAL FAILURE")
+        st.markdown(f"You survived {st.session_state['week']} Weeks.")
+        if st.button("RESTART SYSTEM"):
+            st.session_state.clear()
+            st.rerun()
         st.stop()
 
-    # 3. STATS DASHBOARD
-    st.markdown(f"### 📅 Week {st.session_state['week']}")
+    render_stats()
+    render_feedback()
     
-    c1, c2, c3, c4 = st.columns(4)
-    c1.markdown(f"""<div class="stat-box"><div class="stat-label">Budget</div><div class="stat-value color-budget">{s['budget']}k</div></div>""", unsafe_allow_html=True)
-    c2.markdown(f"""<div class="stat-box"><div class="stat-label">Reputation</div><div class="stat-value color-rep">{s['rep']}</div></div>""", unsafe_allow_html=True)
-    c3.markdown(f"""<div class="stat-box"><div class="stat-label">Risk</div><div class="stat-value color-risk">{s['risk']}%</div></div>""", unsafe_allow_html=True)
-    c4.markdown(f"""<div class="stat-box"><div class="stat-label">Bandwidth</div><div class="stat-value color-bw">{s['bandwidth']}</div></div>""", unsafe_allow_html=True)
-
-    st.write("") # Spacer
-
-    # 4. LAST TURN FEEDBACK
-    render_impact_cue()
-
-    # 5. RENDER CARD
-    current_event = EVENTS[st.session_state['current_card_idx']]
+    card = st.session_state['current_card']
     
+    # CARD CONTAINER
     st.markdown(f"""
     <div class="game-card">
-        <div class="card-emoji">{current_event['emoji']}</div>
-        <div class="card-title">{current_event['title']}</div>
-        <div class="card-desc">{current_event['text']}</div>
+        <div class="card-img-container">
+            <img src="{card['image']}" class="card-img">
+        </div>
+        <div class="card-content">
+            <div class="card-title">{card['title']}</div>
+            <div class="card-desc">{card['text']}</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
-
-    # 6. ACTION BUTTONS
-    b1, b2 = st.columns(2)
-    with b1:
-        if st.button(f"⬅️ {current_event['choice_a']}", use_container_width=True):
-            apply_choice(current_event['impact_a'])
-    with b2:
-        if st.button(f"➡️ {current_event['choice_b']}", use_container_width=True):
-            apply_choice(current_event['impact_b'])
+    
+    # BUTTONS
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button(f"{card['choice_a']}", use_container_width=True):
+            apply_choice(card['impact_a'])
+    with c2:
+        if st.button(f"{card['choice_b']}", use_container_width=True):
+            apply_choice(card['impact_b'])
