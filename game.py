@@ -105,16 +105,16 @@ st.markdown("""
         box-shadow: 0px 0px 0px #000;
     }
     
-    /* POWERUP BUTTON STYLE */
-    .powerup-btn {
-        border: 2px dashed #BD00FF !important;
-        color: #BD00FF !important;
+    /* TOOLTIP FIX (Make them more visible) */
+    div[data-baseweb="tooltip"] {
+        background-color: #333 !important;
+        color: #fff !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
-# --- GAME DATA ---
+# --- GAME DATA (Now with 9 Scenarios) ---
 EVENTS = [
     {
         "id": 1,
@@ -160,36 +160,100 @@ EVENTS = [
         "impact_a": {"budget": 0, "risk": +5, "rep": -10, "bandwidth": -10},
         "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
     },
+    {
+        "id": 5,
+        "type": "VENDOR",
+        "image": "https://img.freepik.com/free-vector/business-deal-cartoon-concept_1284-11440.jpg",
+        "title": "Sales Override",
+        "text": "VP of Sales wants to bypass the security review for a 'critical' new vendor.",
+        "choice_a": "Block (Follow Process)",
+        "choice_b": "Allow (Speed)",
+        "impact_a": {"budget": 0, "risk": -5, "rep": -15, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +20, "rep": +10, "bandwidth": 0}
+    },
+    {
+        "id": 6,
+        "type": "INFRA",
+        "image": "https://img.freepik.com/free-vector/server-room-concept-illustration_114360-437.jpg",
+        "title": "Cloud Bill Shock",
+        "text": "A developer left a massive GPU cluster running all weekend. It cost $20k.",
+        "choice_a": "Eat the Cost",
+        "choice_b": "Restrict Access",
+        "impact_a": {"budget": -20, "risk": 0, "rep": 0, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": -5, "rep": -10, "bandwidth": -5}
+    },
+    {
+        "id": 7,
+        "type": "PEOPLE",
+        "image": "https://img.freepik.com/free-vector/tired-worker-concept-illustration_114360-534.jpg",
+        "title": "Burnout Warning",
+        "text": "Your lead engineer is exhausted and threatening to quit.",
+        "choice_a": "Give Bonus ($$$)",
+        "choice_b": "Mandatory Time Off",
+        "impact_a": {"budget": -10, "risk": 0, "rep": +5, "bandwidth": +10},
+        "impact_b": {"budget": 0, "risk": +10, "rep": +5, "bandwidth": -10}
+    },
+    {
+        "id": 8,
+        "type": "INCIDENT",
+        "image": "https://img.freepik.com/free-vector/bug-fixing-concept-illustration_114360-3945.jpg",
+        "title": "Legacy Code",
+        "text": "A critical vulnerability was found in a system nobody has touched in 5 years.",
+        "choice_a": "Rewrite It (Hard)",
+        "choice_b": "WAF It (Band-aid)",
+        "impact_a": {"budget": -10, "risk": -20, "rep": +5, "bandwidth": -25},
+        "impact_b": {"budget": -5, "risk": +10, "rep": 0, "bandwidth": 0}
+    },
+    {
+        "id": 9,
+        "type": "STRATEGY",
+        "image": "https://img.freepik.com/free-vector/public-relations-concept-illustration_114360-2445.jpg",
+        "title": "Journalist Inquiry",
+        "text": "A reporter is asking about a 'rumored' breach. It's technically false, but close.",
+        "choice_a": "No Comment",
+        "choice_b": "Deny Everything",
+        "impact_a": {"budget": 0, "risk": 0, "rep": -10, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +15, "rep": +10, "bandwidth": 0}
+    }
 ]
 
 # --- GAME STATE ---
 def init_game():
     if 'game_active' not in st.session_state: st.session_state['game_active'] = False
     if 'stats' not in st.session_state: st.session_state['stats'] = {'budget': 60, 'rep': 50, 'risk': 20, 'bandwidth': 50}
-    if 'inventory' not in st.session_state: st.session_state['inventory'] = {'scapegoat': 1} # Start with 1 wildcard
+    if 'inventory' not in st.session_state: st.session_state['inventory'] = {'scapegoat': 1}
     if 'deck' not in st.session_state: refill_deck()
     if 'current_card' not in st.session_state: draw_card()
     if 'week' not in st.session_state: st.session_state['week'] = 1
     if 'history' not in st.session_state: st.session_state['history'] = []
 
 def refill_deck():
+    # Create a fresh shuffled list of ALL event IDs
     st.session_state['deck'] = list(range(len(EVENTS)))
     random.shuffle(st.session_state['deck'])
 
 def draw_card():
-    if not st.session_state['deck']: refill_deck()
+    # If deck is empty, reshuffle
+    if not st.session_state['deck']:
+        refill_deck()
+    
+    # Pop one unique card index
     idx = st.session_state['deck'].pop()
     st.session_state['current_card'] = EVENTS[idx]
 
+def get_impact_string(impact):
+    """Returns a string preview of what stats change (e.g. '📉 Budget | 📈 Risk')"""
+    parts = []
+    for k, v in impact.items():
+        if v > 0: parts.append(f"📈 {k.title()}")
+        elif v < 0: parts.append(f"📉 {k.title()}")
+    return " | ".join(parts) if parts else "No major impact"
+
 def apply_effect(impact, choice_text):
-    # Apply Stats
     for k, v in impact.items():
         st.session_state['stats'][k] = max(0, min(100, st.session_state['stats'][k] + v))
     
-    # Log History
-    st.session_state['history'].insert(0, f"Week {st.session_state['week']}: Chosen '{choice_text}'")
-    
-    # Advance
+    st.session_state['history'].insert(0, f"Week {st.session_state['week']}: {choice_text}")
     st.session_state['week'] += 1
     draw_card()
     time.sleep(0.1)
@@ -219,77 +283,56 @@ if not st.session_state['game_active']:
 else:
     # --- MAIN GAME UI ---
     
-    # 1. SIDEBAR TOOLKIT
+    # 1. SIDEBAR
     with st.sidebar:
-        st.markdown("### 🎒 CISO TOOLKIT")
-        
-        # Power-Up Card Logic
+        st.markdown("### 🎒 TOOLKIT")
         scape_count = st.session_state['inventory']['scapegoat']
         if scape_count > 0:
-            st.info(f"🃏 **Scapegoat Card ({scape_count})**\n\nUse this to blame a vendor and skip the current crisis.")
-            if st.button("Use Scapegoat"):
-                use_powerup('scapegoat')
+            st.info(f"🃏 **Scapegoat ({scape_count})**\n\nSkip one crisis.")
+            if st.button("Use Card"): use_powerup('scapegoat')
         else:
-            st.markdown("*(No power-ups remaining)*")
-        
+            st.markdown("*(Empty)*")
+            
         st.divider()
-        st.markdown("### 📜 RECENT LOGS")
+        st.markdown("### 📜 LOGS")
         for log in st.session_state['history'][:5]:
             st.caption(log)
             
-        if st.button("🛑 QUIT GAME"):
+        if st.button("🛑 QUIT"):
             st.session_state.clear()
             st.rerun()
 
-    # 2. CHECK GAME OVER
+    # 2. GAME OVER CHECK
     s = st.session_state['stats']
     if s['risk'] >= 100:
-        st.error("💀 GAME OVER: The Board fired you for negligence.")
-        if st.button("Try Again"): st.session_state.clear(); st.rerun()
+        st.error("💀 GAME OVER: You were breached.")
+        if st.button("Retry"): st.session_state.clear(); st.rerun()
         st.stop()
     elif s['budget'] <= 0:
-        st.error("💸 GAME OVER: You spent all the money. Security is bankrupt.")
-        if st.button("Try Again"): st.session_state.clear(); st.rerun()
+        st.error("💸 GAME OVER: Bankrupt.")
+        if st.button("Retry"): st.session_state.clear(); st.rerun()
         st.stop()
 
-    # 3. STATS HEADER (The HUD)
+    # 3. HUD
     st.markdown(f"#### 🗓️ WEEK {st.session_state['week']} / 52")
-    
-    # Custom HTML HUD
     st.markdown(f"""
     <div class="stats-container">
-        <div class="stat-item">
-            <div class="stat-label">Budget</div>
-            <div class="stat-val c-green">${s['budget']}k</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Reputation</div>
-            <div class="stat-val c-blue">{s['rep']}</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Risk Level</div>
-            <div class="stat-val c-red">{s['risk']}%</div>
-        </div>
-        <div class="stat-item">
-            <div class="stat-label">Team Health</div>
-            <div class="stat-val c-purp">{s['bandwidth']}</div>
-        </div>
+        <div class="stat-item"><div class="stat-label">Budget</div><div class="stat-val c-green">${s['budget']}k</div></div>
+        <div class="stat-item"><div class="stat-label">Reputation</div><div class="stat-val c-blue">{s['rep']}</div></div>
+        <div class="stat-item"><div class="stat-label">Risk Level</div><div class="stat-val c-red">{s['risk']}%</div></div>
+        <div class="stat-item"><div class="stat-label">Team Health</div><div class="stat-val c-purp">{s['bandwidth']}</div></div>
     </div>
     """, unsafe_allow_html=True)
 
-    # 4. THE CARD
+    # 4. CARD
     card = st.session_state['current_card']
-    
-    # Render Card HTML
     st.markdown(f"""
     <div class="game-card">
         <div class="card-header">
             <span style="font-weight:bold; color:#888;">EVENT #{card['id']}</span>
             <span class="card-badge">{card['type']}</span>
         </div>
-        <div class="card-img-container">
-            <img src="{card['image']}" class="card-img">
-        </div>
+        <div class="card-img-container"><img src="{card['image']}" class="card-img"></div>
         <div class="card-body">
             <div class="card-title">{card['title']}</div>
             <div class="card-text">{card['text']}</div>
@@ -297,11 +340,11 @@ else:
     </div>
     """, unsafe_allow_html=True)
     
-    # 5. CONTROLS
+    # 5. CONTROLS (With Hover Tooltips!)
     c1, c2 = st.columns(2)
     with c1:
-        if st.button(f"⬅️ {card['choice_a']}"):
+        if st.button(f"⬅️ {card['choice_a']}", help=get_impact_string(card['impact_a'])):
             apply_effect(card['impact_a'], card['choice_a'])
     with c2:
-        if st.button(f"➡️ {card['choice_b']}"):
+        if st.button(f"➡️ {card['choice_b']}", help=get_impact_string(card['impact_b'])):
             apply_effect(card['impact_b'], card['choice_b'])
