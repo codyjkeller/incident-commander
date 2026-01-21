@@ -82,11 +82,11 @@ st.markdown("""
     .c-red { color: #FF4D4D; }
     .c-purp { color: #BD00FF; }
 
-    /* BUTTONS */
+    /* BUTTONS - WITH FORCE COLORS */
     div.stButton > button {
-        background-color: #2D2D35;
-        color: white;
-        border: 3px solid #555;
+        background-color: #2D2D35 !important;
+        color: #ffffff !important;
+        border: 3px solid #555 !important;
         border-radius: 12px;
         padding: 15px;
         font-weight: 800;
@@ -97,8 +97,8 @@ st.markdown("""
     }
     div.stButton > button:hover {
         transform: translateY(-2px);
-        border-color: #BD00FF;
-        color: #BD00FF;
+        border-color: #BD00FF !important;
+        color: #BD00FF !important;
     }
     div.stButton > button:active {
         transform: translateY(2px);
@@ -114,7 +114,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- GAME DATA (Now with 9 Scenarios) ---
+# --- GAME DATA ---
 EVENTS = [
     {
         "id": 1,
@@ -214,6 +214,39 @@ EVENTS = [
         "choice_b": "Deny Everything",
         "impact_a": {"budget": 0, "risk": 0, "rep": -10, "bandwidth": 0},
         "impact_b": {"budget": 0, "risk": +15, "rep": +10, "bandwidth": 0}
+    },
+    {
+        "id": 10,
+        "type": "SOCIAL",
+        "image": "https://img.freepik.com/free-vector/marketing-consulting-concept-illustration_114360-9027.jpg",
+        "title": "Viral CEO Tweet",
+        "text": "Your CEO tweeted 'Our security is unhackable!' It went viral. Hackers accepted the challenge.",
+        "choice_a": "Public Retraction",
+        "choice_b": "Silent Fortification",
+        "impact_a": {"budget": 0, "risk": -10, "rep": -20, "bandwidth": 0},
+        "impact_b": {"budget": -20, "risk": +10, "rep": 0, "bandwidth": 0}
+    },
+    {
+        "id": 11,
+        "type": "VENDOR",
+        "image": "https://img.freepik.com/free-vector/wallet-concept-illustration_114360-1558.jpg",
+        "title": "Beg Bounty",
+        "text": "A researcher found a critical flaw but wants $10k more than your bounty policy allows.",
+        "choice_a": "Pay the Extra",
+        "choice_b": "Stick to Policy",
+        "impact_a": {"budget": -10, "risk": -20, "rep": +5, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +5, "rep": -15, "bandwidth": 0}
+    },
+    {
+        "id": 12,
+        "type": "BUSINESS",
+        "image": "https://img.freepik.com/free-vector/celebration-concept-illustration_114360-1794.jpg",
+        "title": "Christmas Deploy",
+        "text": "Sales wants to launch a feature on Christmas Eve. It hasn't been tested.",
+        "choice_a": "Block Launch",
+        "choice_b": "Approve & Pray",
+        "impact_a": {"budget": 0, "risk": -5, "rep": -10, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +25, "rep": +10, "bandwidth": -20}
     }
 ]
 
