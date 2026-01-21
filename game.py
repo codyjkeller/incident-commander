@@ -82,8 +82,9 @@ st.markdown("""
     .c-red { color: #FF4D4D; }
     .c-purp { color: #BD00FF; }
 
-    /* BUTTONS - WITH FORCE COLORS */
-    div.stButton > button {
+    /* BUTTONS - AGGRESSIVE OVERRIDE */
+    /* Target the button container */
+    .stButton > button {
         background-color: #2D2D35 !important;
         color: #ffffff !important;
         border: 3px solid #555 !important;
@@ -95,20 +96,35 @@ st.markdown("""
         box-shadow: 0px 5px 0px #000;
         transition: all 0.1s;
     }
-    div.stButton > button:hover {
+    
+    /* Target the text inside the button specifically */
+    .stButton > button p {
+        color: #ffffff !important;
+    }
+
+    /* Hover State */
+    .stButton > button:hover {
         transform: translateY(-2px);
         border-color: #BD00FF !important;
         color: #BD00FF !important;
     }
-    div.stButton > button:active {
+    .stButton > button:hover p {
+        color: #BD00FF !important;
+    }
+
+    /* Active/Click State */
+    .stButton > button:active {
         transform: translateY(2px);
         box-shadow: 0px 0px 0px #000;
+        background-color: #1E1E24 !important;
     }
     
-    /* TOOLTIP FIX (Make them more visible) */
+    /* TOOLTIP FIX */
     div[data-baseweb="tooltip"] {
         background-color: #333 !important;
         color: #fff !important;
+        border: 1px solid #555;
+        font-size: 14px;
     }
 
 </style>
@@ -343,6 +359,10 @@ else:
         st.stop()
     elif s['budget'] <= 0:
         st.error("💸 GAME OVER: Bankrupt.")
+        if st.button("Retry"): st.session_state.clear(); st.rerun()
+        st.stop()
+    elif s['bandwidth'] <= 0:
+        st.error("😫 GAME OVER: Burnout.")
         if st.button("Retry"): st.session_state.clear(); st.rerun()
         st.stop()
 
