@@ -5,249 +5,303 @@ import time
 # --- CONFIGURATION ---
 st.set_page_config(page_title="CISO Commander", page_icon="🛡️", layout="centered")
 
-# --- CUSTOM CSS ---
+# --- CUSTOM CSS (The "Corporate Arcade" Look) ---
 st.markdown("""
 <style>
-    /* Main Background */
+    /* Global Font & Background */
+    @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap');
+    
     .stApp {
-        background-color: #0b0d12;
-        color: #e0e6ed;
-        font-family: 'Helvetica Neue', sans-serif;
+        background-color: #121212;
+        color: #ffffff;
+        font-family: 'Space Grotesk', sans-serif;
     }
     
-    /* CARD STYLING */
+    /* THE GAME CARD */
     .game-card {
-        background-color: #161b22;
-        border-radius: 12px;
-        padding: 0px;
-        margin: 20px auto;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-        border: 1px solid #30363d;
-        text-align: center;
+        background-color: #1E1E24;
+        border: 4px solid #444;
+        border-radius: 20px;
         overflow: hidden;
-        max-width: 650px;
+        margin: 20px auto;
+        max-width: 600px;
+        box-shadow: 10px 10px 0px #000; /* Hard shadow for cartoon feel */
+        transition: transform 0.2s;
+    }
+    .card-header {
+        background-color: #2D2D35;
+        padding: 15px;
+        border-bottom: 4px solid #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-badge {
+        background-color: #FF0055;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-weight: bold;
+        font-size: 12px;
+        border: 2px solid #fff;
+        text-transform: uppercase;
     }
     .card-img-container {
         width: 100%;
         height: 250px;
         background-color: #000;
         overflow: hidden;
-        border-bottom: 1px solid #30363d;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        border-bottom: 4px solid #444;
     }
     .card-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
-        opacity: 0.9;
     }
-    .card-content { padding: 30px; }
-    .card-title { font-size: 24px; font-weight: 700; color: #fff; margin-bottom: 10px; letter-spacing: 0.5px; }
-    .card-desc { font-size: 16px; color: #8b949e; line-height: 1.5; margin-bottom: 25px; }
+    .card-body { padding: 30px; text-align: center; }
+    .card-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; color: #fff; }
+    .card-text { font-size: 18px; color: #ccc; line-height: 1.5; margin-bottom: 20px; }
 
-    /* STATS BAR */
-    .stat-box {
-        background-color: #161b22;
-        padding: 12px;
-        border-radius: 8px;
-        text-align: center;
-        border: 1px solid #30363d;
+    /* STATS DASHBOARD */
+    .stats-container {
+        display: flex;
+        justify-content: space-between;
+        background: #1E1E24;
+        border: 3px solid #444;
+        border-radius: 15px;
+        padding: 10px;
+        margin-bottom: 20px;
+        box-shadow: 5px 5px 0px #000;
     }
-    .stat-label { font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-    .stat-value { font-size: 24px; font-weight: 700; font-family: 'Courier New', monospace; }
+    .stat-item { text-align: center; flex: 1; }
+    .stat-label { font-size: 10px; font-weight: bold; color: #888; text-transform: uppercase; }
+    .stat-val { font-size: 24px; font-weight: 800; }
     
-    /* Colors */
-    .c-green { color: #3fb950; }
-    .c-blue { color: #58a6ff; }
-    .c-red { color: #f85149; }
-    .c-yellow { color: #d29922; }
+    .c-green { color: #00FF9D; }
+    .c-blue { color: #00E0FF; }
+    .c-red { color: #FF4D4D; }
+    .c-purp { color: #BD00FF; }
 
     /* BUTTONS */
     div.stButton > button {
-        background-color: #21262d; 
-        color: #c9d1d9;
-        border: 1px solid #30363d;
-        border-radius: 6px;
-        padding: 12px 20px;
-        font-size: 14px;
-        font-weight: 600;
+        background-color: #2D2D35;
+        color: white;
+        border: 3px solid #555;
+        border-radius: 12px;
+        padding: 15px;
+        font-weight: 800;
+        font-size: 16px;
         width: 100%;
-        transition: all 0.2s;
+        box-shadow: 0px 5px 0px #000;
+        transition: all 0.1s;
     }
     div.stButton > button:hover {
-        background-color: #30363d;
-        border-color: #8b949e;
-        color: #fff;
+        transform: translateY(-2px);
+        border-color: #BD00FF;
+        color: #BD00FF;
+    }
+    div.stButton > button:active {
+        transform: translateY(2px);
+        box-shadow: 0px 0px 0px #000;
+    }
+    
+    /* POWERUP BUTTON STYLE */
+    .powerup-btn {
+        border: 2px dashed #BD00FF !important;
+        color: #BD00FF !important;
     }
 
-    /* FEEDBACK PILL */
-    .feedback-pill {
-        background: #161b22;
-        border: 1px solid #30363d;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 12px;
-        color: #8b949e;
-        display: inline-block;
-    }
 </style>
 """, unsafe_allow_html=True)
 
 # --- GAME DATA ---
-# NOTE: Replace 'https://placehold.co/600x400/161b22/FFF' with actual image paths or URLs
 EVENTS = [
     {
         "id": 1,
-        "image": "https://images.unsplash.com/photo-1563206767-5b1d97299337?auto=format&fit=crop&w=800&q=80", # Hacker/Code
-        "title": "Ransomware Detected",
-        "text": "SOC alerts a lateral movement attempt in Finance. The payload is encrypted.",
-        "choice_a": "Isolate Subnet (Downtime)",
-        "choice_b": "Monitor to Trace Source",
-        "impact_a": {"budget": 0, "risk": -15, "rep": -5, "bandwidth": -5},
-        "impact_b": {"budget": 0, "risk": +20, "rep": 0, "bandwidth": -10}
+        "type": "INCIDENT",
+        "image": "https://img.freepik.com/free-vector/hacker-operating-laptop-cartoon-icon-illustration-technology-icon-concept-isolated-flat-cartoon-style_138676-2387.jpg", 
+        "title": "Ransomware!",
+        "text": "A skull pops up on the CFO's laptop. They want 50 BTC or the financial data gets leaked.",
+        "choice_a": "Pay the Ransom ($$$)",
+        "choice_b": "Format & Restore (Time)",
+        "impact_a": {"budget": -25, "risk": -10, "rep": -5, "bandwidth": 0},
+        "impact_b": {"budget": 0, "risk": +5, "rep": +5, "bandwidth": -25}
     },
     {
         "id": 2,
-        "image": "https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=800&q=80", # Meeting/Audit
-        "title": "Vendor Compliance Fail",
-        "text": "A critical AI vendor failed their SOC 2 Type 2. The CTO needs this tool for a product launch.",
-        "choice_a": "Block Integration",
-        "choice_b": "Accept Risk Exception",
-        "impact_a": {"budget": 0, "risk": -5, "rep": -10, "bandwidth": -5},
-        "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
+        "type": "STRATEGY",
+        "image": "https://img.freepik.com/free-vector/robotic-artificial-intelligence-technology-smart-lerning-from-bigdata_1150-48136.jpg", 
+        "title": "Shadow AI",
+        "text": "Marketing is pasting customer data into 'ChatBot Pro' (a sketchy free tool).",
+        "choice_a": "Block the Tool",
+        "choice_b": "Buy Enterprise License",
+        "impact_a": {"budget": 0, "risk": -10, "rep": -15, "bandwidth": -5},
+        "impact_b": {"budget": -15, "risk": -20, "rep": +10, "bandwidth": 0}
     },
     {
         "id": 3,
-        "image": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80", # Matrix Code
-        "title": "Zero-Day Rumors",
-        "text": "Dark web chatter suggests a vulnerability in our VPN concentrator.",
-        "choice_a": "Emergency Patch (Overtime)",
-        "choice_b": "Wait for Vendor Advisory",
-        "impact_a": {"budget": -10, "risk": -10, "rep": +5, "bandwidth": -20},
-        "impact_b": {"budget": 0, "risk": +25, "rep": 0, "bandwidth": 0}
+        "type": "PEOPLE",
+        "image": "https://img.freepik.com/free-vector/confused-man-working-laptop-cartoon-icon-illustration_138676-2422.jpg", 
+        "title": "Phishing Click",
+        "text": "Dave from HR clicked a link promising 'Free Donuts'. It was a pentest... but he failed.",
+        "choice_a": "Mandatory Training",
+        "choice_b": "Public Shaming",
+        "impact_a": {"budget": -5, "risk": -5, "rep": -5, "bandwidth": -5},
+        "impact_b": {"budget": 0, "risk": 0, "rep": -20, "bandwidth": 0}
     },
     {
         "id": 4,
-        "image": "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80", # Boardroom
-        "title": "Budget Cuts",
-        "text": "CFO asks you to reduce spend by 10% to help Q4 numbers.",
-        "choice_a": "Cut Training Budget",
-        "choice_b": "Reduce Tool Licensing",
-        "impact_a": {"budget": +10, "risk": +5, "rep": -5, "bandwidth": +5},
-        "impact_b": {"budget": +10, "risk": +15, "rep": 0, "bandwidth": -5}
+        "type": "AUDIT",
+        "image": "https://img.freepik.com/free-vector/checklist-concept-illustration_114360-479.jpg", 
+        "title": "Surprise Audit",
+        "text": "A regulator is here early. The evidence folder is... messy.",
+        "choice_a": "Delay Them (Stall)",
+        "choice_b": "Show What We Have",
+        "impact_a": {"budget": 0, "risk": +5, "rep": -10, "bandwidth": -10},
+        "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
     },
 ]
 
-# --- STATE MANAGEMENT ---
-def init_state():
+# --- GAME STATE ---
+def init_game():
     if 'game_active' not in st.session_state: st.session_state['game_active'] = False
-    if 'stats' not in st.session_state: st.session_state['stats'] = {'budget': 50, 'rep': 50, 'risk': 20, 'bandwidth': 50}
-    if 'week' not in st.session_state: st.session_state['week'] = 1
+    if 'stats' not in st.session_state: st.session_state['stats'] = {'budget': 60, 'rep': 50, 'risk': 20, 'bandwidth': 50}
+    if 'inventory' not in st.session_state: st.session_state['inventory'] = {'scapegoat': 1} # Start with 1 wildcard
     if 'deck' not in st.session_state: refill_deck()
     if 'current_card' not in st.session_state: draw_card()
-    if 'last_impact' not in st.session_state: st.session_state['last_impact'] = None
+    if 'week' not in st.session_state: st.session_state['week'] = 1
+    if 'history' not in st.session_state: st.session_state['history'] = []
 
 def refill_deck():
-    deck = list(range(len(EVENTS)))
-    random.shuffle(deck)
-    st.session_state['deck'] = deck
+    st.session_state['deck'] = list(range(len(EVENTS)))
+    random.shuffle(st.session_state['deck'])
 
 def draw_card():
     if not st.session_state['deck']: refill_deck()
     idx = st.session_state['deck'].pop()
     st.session_state['current_card'] = EVENTS[idx]
 
-def apply_choice(impact):
-    st.session_state['last_impact'] = impact
+def apply_effect(impact, choice_text):
+    # Apply Stats
     for k, v in impact.items():
         st.session_state['stats'][k] = max(0, min(100, st.session_state['stats'][k] + v))
+    
+    # Log History
+    st.session_state['history'].insert(0, f"Week {st.session_state['week']}: Chosen '{choice_text}'")
+    
+    # Advance
     st.session_state['week'] += 1
     draw_card()
     time.sleep(0.1)
     st.rerun()
 
-init_state()
-
-# --- UI COMPONENTS ---
-def render_stats():
-    s = st.session_state['stats']
-    c1, c2, c3, c4 = st.columns(4)
-    c1.markdown(f"""<div class="stat-box"><div class="stat-label">Budget</div><div class="stat-value c-green">{s['budget']}k</div></div>""", unsafe_allow_html=True)
-    c2.markdown(f"""<div class="stat-box"><div class="stat-label">Trust</div><div class="stat-value c-blue">{s['rep']}</div></div>""", unsafe_allow_html=True)
-    c3.markdown(f"""<div class="stat-box"><div class="stat-label">Risk</div><div class="stat-value c-red">{s['risk']}%</div></div>""", unsafe_allow_html=True)
-    c4.markdown(f"""<div class="stat-box"><div class="stat-label">Team</div><div class="stat-value c-yellow">{s['bandwidth']}</div></div>""", unsafe_allow_html=True)
-
-def render_feedback():
-    if st.session_state['last_impact']:
-        imp = st.session_state['last_impact']
-        changes = []
-        for k, v in imp.items():
-            if v != 0:
-                symbol = "▲" if v > 0 else "▼"
-                color = "#3fb950" if (k != 'risk' and v > 0) or (k == 'risk' and v < 0) else "#f85149"
-                changes.append(f"<span style='color:{color}; margin: 0 10px;'>{k.upper()} {symbol}{abs(v)}</span>")
-        
-        if changes:
-            st.markdown(f"<div style='text-align:center; margin-top:10px;'><div class='feedback-pill'>{''.join(changes)}</div></div>", unsafe_allow_html=True)
-
-# --- SCREENS ---
-if not st.session_state['game_active']:
-    # START SCREEN
-    st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("<h1 style='text-align: center; font-size: 50px;'>🛡️ CISO COMMANDER</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #8b949e;'>Survive 1 Year as the CISO of a targeted enterprise.</p>", unsafe_allow_html=True)
-    
-    # Just a placeholder hero image for the menu
-    st.image("https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1000&q=80", use_column_width=True)
-    
-    if st.button("INITIALIZE SEQUENCE", use_container_width=True):
-        st.session_state['game_active'] = True
+def use_powerup(name):
+    if st.session_state['inventory'].get(name, 0) > 0:
+        st.session_state['inventory'][name] -= 1
+        st.toast(f"Used {name.upper()}! Card skipped.")
+        draw_card()
         st.rerun()
 
+init_game()
+
+# --- START MENU ---
+if not st.session_state['game_active']:
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; font-size: 72px; text-shadow: 4px 4px #BD00FF;'>👾 CISO ARCADE</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; font-size: 20px;'>Can you survive 52 weeks without getting fired?</p>", unsafe_allow_html=True)
+    
+    c1, c2, c3 = st.columns([1,2,1])
+    with c2:
+        if st.button("INSERT COIN (START GAME)", use_container_width=True):
+            st.session_state['game_active'] = True
+            st.rerun()
+
 else:
-    # MAIN GAME
+    # --- MAIN GAME UI ---
+    
+    # 1. SIDEBAR TOOLKIT
     with st.sidebar:
-        st.header("PAUSE")
-        st.progress(min(100, st.session_state['week'] * 2), text=f"Week {st.session_state['week']} / 52")
-        if st.button("Resign (Reset)"):
-            st.session_state.clear()
-            st.rerun()
+        st.markdown("### 🎒 CISO TOOLKIT")
+        
+        # Power-Up Card Logic
+        scape_count = st.session_state['inventory']['scapegoat']
+        if scape_count > 0:
+            st.info(f"🃏 **Scapegoat Card ({scape_count})**\n\nUse this to blame a vendor and skip the current crisis.")
+            if st.button("Use Scapegoat"):
+                use_powerup('scapegoat')
+        else:
+            st.markdown("*(No power-ups remaining)*")
+        
+        st.divider()
+        st.markdown("### 📜 RECENT LOGS")
+        for log in st.session_state['history'][:5]:
+            st.caption(log)
             
-    # Check Game Over
-    s = st.session_state['stats']
-    if s['risk'] >= 100 or s['budget'] <= 0 or s['bandwidth'] <= 0:
-        st.error("❌ TERMINATED: CRITICAL FAILURE")
-        st.markdown(f"You survived {st.session_state['week']} Weeks.")
-        if st.button("RESTART SYSTEM"):
+        if st.button("🛑 QUIT GAME"):
             st.session_state.clear()
             st.rerun()
+
+    # 2. CHECK GAME OVER
+    s = st.session_state['stats']
+    if s['risk'] >= 100:
+        st.error("💀 GAME OVER: The Board fired you for negligence.")
+        if st.button("Try Again"): st.session_state.clear(); st.rerun()
+        st.stop()
+    elif s['budget'] <= 0:
+        st.error("💸 GAME OVER: You spent all the money. Security is bankrupt.")
+        if st.button("Try Again"): st.session_state.clear(); st.rerun()
         st.stop()
 
-    render_stats()
-    render_feedback()
+    # 3. STATS HEADER (The HUD)
+    st.markdown(f"#### 🗓️ WEEK {st.session_state['week']} / 52")
     
+    # Custom HTML HUD
+    st.markdown(f"""
+    <div class="stats-container">
+        <div class="stat-item">
+            <div class="stat-label">Budget</div>
+            <div class="stat-val c-green">${s['budget']}k</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Reputation</div>
+            <div class="stat-val c-blue">{s['rep']}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Risk Level</div>
+            <div class="stat-val c-red">{s['risk']}%</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Team Health</div>
+            <div class="stat-val c-purp">{s['bandwidth']}</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 4. THE CARD
     card = st.session_state['current_card']
     
-    # CARD CONTAINER
+    # Render Card HTML
     st.markdown(f"""
     <div class="game-card">
+        <div class="card-header">
+            <span style="font-weight:bold; color:#888;">EVENT #{card['id']}</span>
+            <span class="card-badge">{card['type']}</span>
+        </div>
         <div class="card-img-container">
             <img src="{card['image']}" class="card-img">
         </div>
-        <div class="card-content">
+        <div class="card-body">
             <div class="card-title">{card['title']}</div>
-            <div class="card-desc">{card['text']}</div>
+            <div class="card-text">{card['text']}</div>
         </div>
     </div>
     """, unsafe_allow_html=True)
     
-    # BUTTONS
+    # 5. CONTROLS
     c1, c2 = st.columns(2)
     with c1:
-        if st.button(f"{card['choice_a']}", use_container_width=True):
-            apply_choice(card['impact_a'])
+        if st.button(f"⬅️ {card['choice_a']}"):
+            apply_effect(card['impact_a'], card['choice_a'])
     with c2:
-        if st.button(f"{card['choice_b']}", use_container_width=True):
-            apply_choice(card['impact_b'])
+        if st.button(f"➡️ {card['choice_b']}"):
+            apply_effect(card['impact_b'], card['choice_b'])
