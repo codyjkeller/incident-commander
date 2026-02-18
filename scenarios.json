@@ -1,66 +1,110 @@
 [
-    {
-        "id": "vendor_ai",
-        "title": "Vendor AI Request",
-        "desc": "Marketing wants to use a free AI tool to generate ad copy. It is not SOC 2 compliant.",
-        "image": "🤖",
-        "left": {
-            "text": "Block It (Too Risky)",
-            "impact": { "budget": 0, "rep": -15, "risk": -10, "time": 0 },
-            "msg": "Marketing hates you, but the data is safe."
-        },
-        "right": {
-            "text": "Approve It (Move Fast)",
-            "impact": { "budget": 0, "rep": 15, "risk": 20, "time": 0 },
-            "msg": "Ad campaign launched early. Data privacy is... questionable."
-        }
-    },
-    {
-        "id": "ransomware_alert",
-        "title": "Ransomware Detected",
-        "desc": "An endpoint in Finance is encrypted. The attacker demands $50k.",
-        "image": "💀",
-        "left": {
-            "text": "Pay the Ransom",
-            "impact": { "budget": -50, "rep": -10, "risk": -5, "time": 10 },
-            "msg": "You paid. Finance is back online, but you funded crime."
-        },
-        "right": {
-            "text": "Restore from Backup",
-            "impact": { "budget": -10, "rep": 5, "risk": 0, "time": -30 },
-            "msg": "It took the team all weekend, but we didn't negotiate with terrorists."
-        }
-    },
-    {
-        "id": "hiring_freeze",
-        "title": "CFO Cuts Budget",
-        "desc": "The CFO wants to cut your 'Penetration Testing' budget to save Q4 numbers.",
-        "image": "📉",
-        "left": {
-            "text": "Accept the Cut",
-            "impact": { "budget": 20, "rep": 15, "risk": 25, "time": 0 },
-            "msg": "CFO is happy. You are flying blind on vulnerabilities."
-        },
-        "right": {
-            "text": "Fight for Budget",
-            "impact": { "budget": 0, "rep": -20, "risk": -10, "time": -10 },
-            "msg": "You kept the money, but the CFO is ignoring your emails now."
-        }
-    },
-    {
-        "id": "log4j",
-        "title": "Zero-Day: Log4j",
-        "desc": "Critical vulnerability found in your Java stack. Patching requires downtime.",
-        "image": "🚨",
-        "left": {
-            "text": "Patch Immediately",
-            "impact": { "budget": -5, "rep": -15, "risk": -40, "time": -20 },
-            "msg": "Production went down for 2 hours. Customers are angry, but safe."
-        },
-        "right": {
-            "text": "Schedule for Weekend",
-            "impact": { "budget": 0, "rep": 5, "risk": 30, "time": 5 },
-            "msg": "You rolled the dice. Let's hope no one scans us before Saturday."
-        }
-    }
+  {
+    "id": "ransomware",
+    "type": "INCIDENT",
+    "title": "Ransomware",
+    "image": "https://img.freepik.com/free-vector/hacker-operating-laptop-cartoon-icon-illustration-technology-icon-concept-isolated-flat-cartoon-style_138676-2387.jpg",
+    "text": "A skull pops up on the CFO's laptop. They want 50 BTC or the financial data gets leaked.",
+    "flavor": "\"We accept Bitcoin or Monero. Tick tock.\"",
+    "choice_a": "Pay $50k Ransom",
+    "choice_b": "Rebuild (3 Days)",
+    "impact_a": {"budget": -25, "risk": -10, "rep": -5, "bandwidth": 0},
+    "impact_b": {"budget": 0, "risk": +5, "rep": +5, "bandwidth": -25}
+  },
+  {
+    "id": "sales_override",
+    "type": "VENDOR",
+    "title": "Sales Override",
+    "image": "https://img.freepik.com/free-vector/business-deal-cartoon-concept_1284-11440.jpg",
+    "text": "The CRO demands we whitelist a sketchy AI tool to close a $1M deal before quarter-end.",
+    "flavor": "\"Just enable it for this one demo, please!\"",
+    "choice_a": "Block (Policy)",
+    "choice_b": "Allow (Revenue)",
+    "impact_a": {"budget": 0, "risk": -5, "rep": -15, "bandwidth": 0},
+    "impact_b": {"budget": +5, "risk": +20, "rep": +10, "bandwidth": 0}
+  },
+  {
+    "id": "log4j",
+    "type": "INCIDENT",
+    "title": "Zero-Day: Log4j",
+    "image": "https://img.freepik.com/free-vector/warning-concept-illustration_114360-1551.jpg",
+    "text": "Critical vulnerability found in your Java stack. Patching requires downtime.",
+    "flavor": "\"It's everywhere. Even in the coffee machine.\"",
+    "choice_a": "Patch Immediately",
+    "choice_b": "Wait for Weekend",
+    "impact_a": {"budget": -5, "risk": -40, "rep": -15, "bandwidth": -20},
+    "impact_b": {"budget": 0, "risk": +30, "rep": +5, "bandwidth": +5}
+  },
+  {
+    "id": "audit_fail",
+    "type": "AUDIT",
+    "title": "Surprise Audit",
+    "image": "https://img.freepik.com/free-vector/checklist-concept-illustration_114360-479.jpg",
+    "text": "The regulator walked in 2 months early. Your evidence repository is... incomplete.",
+    "flavor": "\"I'd like to see your Access Control Logs for last year.\"",
+    "choice_a": "Stall / Delay",
+    "choice_b": "Full Transparency",
+    "impact_a": {"budget": 0, "risk": +5, "rep": -10, "bandwidth": -10},
+    "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
+  },
+  {
+    "id": "angel_investor",
+    "type": "LEGENDARY",
+    "title": "Angel Investor",
+    "image": "https://img.freepik.com/free-vector/money-bag-concept-illustration_114360-639.jpg",
+    "text": "A VC is impressed by your security posture. They wrote a check specifically for your department.",
+    "flavor": "\"Security is a differentiator. Here's $50k.\"",
+    "choice_a": "Hire Staff",
+    "choice_b": "Buy New Toys",
+    "impact_a": {"budget": +50, "risk": 0, "rep": +10, "bandwidth": +30},
+    "impact_b": {"budget": +20, "risk": -20, "rep": +10, "bandwidth": 0}
+  },
+  {
+    "id": "fbi_raid",
+    "type": "LEGENDARY",
+    "title": "FBI Takedown",
+    "image": "https://img.freepik.com/free-vector/police-car-concept-illustration_114360-1288.jpg",
+    "text": "The FBI seized the servers of a vendor you were worried about. The threat is gone.",
+    "flavor": "\"Ladies and gentlemen, we got him.\"",
+    "choice_a": "Celebrate",
+    "choice_b": "Analyze Logs",
+    "impact_a": {"budget": 0, "risk": -30, "rep": 0, "bandwidth": +10},
+    "impact_b": {"budget": 0, "risk": -40, "rep": +5, "bandwidth": -10}
+  },
+  {
+    "id": "apt_1",
+    "type": "BOSS PHASE 1",
+    "title": "Suspicious Login",
+    "image": "https://img.freepik.com/free-vector/cyber-attack-concept-illustration_114360-1897.jpg",
+    "text": "BOSS BATTLE START! A admin account just logged in from North Korea. It's 3 AM.",
+    "flavor": "Phase 1/3: Initial Access",
+    "choice_a": "Reset Password",
+    "choice_b": "Watch & Wait",
+    "impact_a": {"budget": 0, "risk": -5, "rep": 0, "bandwidth": -5},
+    "impact_b": {"budget": 0, "risk": +10, "rep": 0, "bandwidth": 0}
+  },
+  {
+    "id": "apt_2",
+    "type": "BOSS PHASE 2",
+    "title": "Lateral Movement",
+    "image": "https://img.freepik.com/free-vector/hacker-activity-concept-illustration_114360-2330.jpg",
+    "text": "The attacker is scanning the internal network. They found the Domain Controller.",
+    "flavor": "Phase 2/3: Escalation",
+    "choice_a": "Cut Internet",
+    "choice_b": "Deploy Decoys",
+    "impact_a": {"budget": -10, "risk": -10, "rep": -20, "bandwidth": 0},
+    "impact_b": {"budget": 0, "risk": +5, "rep": 0, "bandwidth": -10}
+  },
+  {
+    "id": "apt_3",
+    "type": "BOSS PHASE 3",
+    "title": "Data Exfiltration",
+    "image": "https://img.freepik.com/free-vector/data-extraction-concept-illustration_114360-4869.jpg",
+    "text": "They are trying to upload 50GB of customer data to Dropbox.",
+    "flavor": "Phase 3/3: The Finale",
+    "choice_a": "Block IP Range",
+    "choice_b": "Let it ride (Honeypot)",
+    "impact_a": {"budget": 0, "risk": -20, "rep": +10, "bandwidth": 0},
+    "impact_b": {"budget": 0, "risk": +50, "rep": +50, "bandwidth": 0}
+  }
 ]
