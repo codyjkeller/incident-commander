@@ -9,7 +9,7 @@
     "choice_a": "Pay $50k Ransom",
     "choice_b": "Rebuild (3 Days)",
     "impact_a": {"budget": -25, "risk": -10, "rep": -5, "bandwidth": 0},
-    "impact_b": {"budget": 0, "risk": +5, "rep": +5, "bandwidth": -25}
+    "impact_b": {"budget": 0, "risk": 5, "rep": 5, "bandwidth": -25}
   },
   {
     "id": "sales_override",
@@ -21,7 +21,7 @@
     "choice_a": "Block (Policy)",
     "choice_b": "Allow (Revenue)",
     "impact_a": {"budget": 0, "risk": -5, "rep": -15, "bandwidth": 0},
-    "impact_b": {"budget": +5, "risk": +20, "rep": +10, "bandwidth": 0}
+    "impact_b": {"budget": 5, "risk": 20, "rep": 10, "bandwidth": 0}
   },
   {
     "id": "log4j",
@@ -33,7 +33,7 @@
     "choice_a": "Patch Immediately",
     "choice_b": "Wait for Weekend",
     "impact_a": {"budget": -5, "risk": -40, "rep": -15, "bandwidth": -20},
-    "impact_b": {"budget": 0, "risk": +30, "rep": +5, "bandwidth": +5}
+    "impact_b": {"budget": 0, "risk": 30, "rep": 5, "bandwidth": 5}
   },
   {
     "id": "audit_fail",
@@ -44,8 +44,8 @@
     "flavor": "\"I'd like to see your Access Control Logs for last year.\"",
     "choice_a": "Stall / Delay",
     "choice_b": "Full Transparency",
-    "impact_a": {"budget": 0, "risk": +5, "rep": -10, "bandwidth": -10},
-    "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
+    "impact_a": {"budget": 0, "risk": 5, "rep": -10, "bandwidth": -10},
+    "impact_b": {"budget": 0, "risk": 15, "rep": 5, "bandwidth": 0}
   },
   {
     "id": "angel_investor",
@@ -56,8 +56,8 @@
     "flavor": "\"Security is a differentiator. Here's $50k.\"",
     "choice_a": "Hire Staff",
     "choice_b": "Buy New Toys",
-    "impact_a": {"budget": +50, "risk": 0, "rep": +10, "bandwidth": +30},
-    "impact_b": {"budget": +20, "risk": -20, "rep": +10, "bandwidth": 0}
+    "impact_a": {"budget": 50, "risk": 0, "rep": 10, "bandwidth": 30},
+    "impact_b": {"budget": 20, "risk": -20, "rep": 10, "bandwidth": 0}
   },
   {
     "id": "fbi_raid",
@@ -68,8 +68,8 @@
     "flavor": "\"Ladies and gentlemen, we got him.\"",
     "choice_a": "Celebrate",
     "choice_b": "Analyze Logs",
-    "impact_a": {"budget": 0, "risk": -30, "rep": 0, "bandwidth": +10},
-    "impact_b": {"budget": 0, "risk": -40, "rep": +5, "bandwidth": -10}
+    "impact_a": {"budget": 0, "risk": -30, "rep": 0, "bandwidth": 10},
+    "impact_b": {"budget": 0, "risk": -40, "rep": 5, "bandwidth": -10}
   },
   {
     "id": "apt_1",
@@ -81,7 +81,7 @@
     "choice_a": "Reset Password",
     "choice_b": "Watch & Wait",
     "impact_a": {"budget": 0, "risk": -5, "rep": 0, "bandwidth": -5},
-    "impact_b": {"budget": 0, "risk": +10, "rep": 0, "bandwidth": 0}
+    "impact_b": {"budget": 0, "risk": 10, "rep": 0, "bandwidth": 0}
   },
   {
     "id": "apt_2",
@@ -93,7 +93,7 @@
     "choice_a": "Cut Internet",
     "choice_b": "Deploy Decoys",
     "impact_a": {"budget": -10, "risk": -10, "rep": -20, "bandwidth": 0},
-    "impact_b": {"budget": 0, "risk": +5, "rep": 0, "bandwidth": -10}
+    "impact_b": {"budget": 0, "risk": 5, "rep": 0, "bandwidth": -10}
   },
   {
     "id": "apt_3",
@@ -104,7 +104,54 @@
     "flavor": "Phase 3/3: The Finale",
     "choice_a": "Block IP Range",
     "choice_b": "Let it ride (Honeypot)",
-    "impact_a": {"budget": 0, "risk": -20, "rep": +10, "bandwidth": 0},
-    "impact_b": {"budget": 0, "risk": +50, "rep": +50, "bandwidth": 0}
-  }
-]
+    "impact_a": {"budget": 0, "risk": -20, "rep": 10, "bandwidth": 0},
+    "impact_b": {"budget": 0, "risk": 50, "rep": 50, "bandwidth": 0}
+  },
+  {
+    "id": "solar_winds",
+    "type": "INCIDENT",
+    "title": "Supply Chain Attack",
+    "image": "https://img.freepik.com/free-vector/server-room-concept-illustration_114360-434.jpg",
+    "text": "Our network monitoring tool just pushed a malicious update. We are beaconing to Russia.",
+    "flavor": "\"Trust no one. Not even the vendor.\"",
+    "choice_a": "Shut Down Everything",
+    "choice_b": "Patch & Pray",
+    "impact_a": {"budget": 0, "risk": -20, "rep": -10, "bandwidth": -20},
+    "impact_b": {"budget": 0, "risk": 30, "rep": 5, "bandwidth": 0}
+  },
+  {
+    "id": "insider_threat",
+    "type": "PEOPLE",
+    "title": "Disgruntled Admin",
+    "image": "https://img.freepik.com/free-vector/angry-employee-concept-illustration_114360-1567.jpg",
+    "text": "A fired sysadmin still has SSH access and is deleting backups.",
+    "flavor": "\"You forgot to revoke his keys, didn't you?\"",
+    "choice_a": "Call Legal/FBI",
+    "choice_b": "Hard Reset Keys",
+    "impact_a": {"budget": -10, "risk": -5, "rep": -10, "bandwidth": -5},
+    "impact_b": {"budget": 0, "risk": -10, "rep": 0, "bandwidth": -10}
+  },
+  {
+    "id": "gdpr_fine",
+    "type": "AUDIT",
+    "title": "GDPR Violation",
+    "image": "https://img.freepik.com/free-vector/privacy-policy-concept-illustration_114360-165.jpg",
+    "text": "We accidentally stored EU customer data on a US server. The regulators noticed.",
+    "flavor": "\"That's a 4% global revenue fine...\"",
+    "choice_a": "Pay the Fine",
+    "choice_b": "Fight in Court",
+    "impact_a": {"budget": -30, "risk": -10, "rep": -5, "bandwidth": 0},
+    "impact_b": {"budget": -10, "risk": 10, "rep": -20, "bandwidth": -10}
+  },
+  {
+    "id": "crypto_miner",
+    "type": "INCIDENT",
+    "title": "Crypto Jacking",
+    "image": "https://img.freepik.com/free-vector/cryptocurrency-mining-concept-illustration_114360-569.jpg",
+    "text": "AWS bill is up 500%. Someone installed a Monero miner on our dev cluster.",
+    "flavor": "\"At least they didn't steal the data?\"",
+    "choice_a": "Kill Processes",
+    "choice_b": "Investigate Root Cause",
+    "impact_a": {"budget": -5, "risk": 10, "rep": 0, "bandwidth": 0},
+    "impact_b": {"budget": -5, "risk": -10, "rep": 5, "bandwidth": -10}
+  },
