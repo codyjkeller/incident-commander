@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 import time
+import json
 
 # --- CONFIGURATION ---
 st.set_page_config(page_title="CISO Commander", page_icon="🛡️", layout="centered")
@@ -154,166 +155,35 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- GAME CONTENT ---
+# --- DATA LOADER ---
+@st.cache_data
+def load_scenarios():
+    try:
+        with open('scenarios.json', 'r') as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        st.error("scenarios.json not found! Please ensure the file exists.")
+        return []
 
-# 1. STANDARD DECK
-STANDARD_EVENTS = [
-    {
-        "id": "ransomware",
-        "type": "INCIDENT",
-        "icon": "💀",
-        "title": "Ransomware",
-        "image": "https://img.freepik.com/free-vector/hacker-operating-laptop-cartoon-icon-illustration-technology-icon-concept-isolated-flat-cartoon-style_138676-2387.jpg",
-        "text": "A skull pops up on the CFO's laptop. They want 50 BTC or the financial data gets leaked.",
-        "flavor": "\"We accept Bitcoin or Monero. Tick tock.\"",
-        "choice_a": "Pay $50k Ransom",
-        "choice_b": "Rebuild (3 Days)",
-        "impact_a": {"budget": -25, "risk": -10, "rep": -5, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +5, "rep": +5, "bandwidth": -25}
-    },
-    {
-        "id": "sales_override",
-        "type": "VENDOR",
-        "icon": "🤝",
-        "title": "Sales Override",
-        "image": "https://img.freepik.com/free-vector/business-deal-cartoon-concept_1284-11440.jpg",
-        "text": "The CRO demands we whitelist a sketchy AI tool to close a $1M deal before quarter-end.",
-        "flavor": "\"Just enable it for this one demo, please!\"",
-        "choice_a": "Block (Policy)",
-        "choice_b": "Allow (Revenue)",
-        "impact_a": {"budget": 0, "risk": -5, "rep": -15, "bandwidth": 0},
-        "impact_b": {"budget": +5, "risk": +20, "rep": +10, "bandwidth": 0}
-    },
-    {
-        "id": "audit_fail",
-        "type": "AUDIT",
-        "icon": "📋",
-        "title": "Surprise Audit",
-        "image": "https://img.freepik.com/free-vector/checklist-concept-illustration_114360-479.jpg",
-        "text": "The regulator walked in 2 months early. Your evidence repository is... incomplete.",
-        "flavor": "\"I'd like to see your Access Control Logs for last year.\"",
-        "choice_a": "Stall / Delay",
-        "choice_b": "Full Transparency",
-        "impact_a": {"budget": 0, "risk": +5, "rep": -10, "bandwidth": -10},
-        "impact_b": {"budget": 0, "risk": +15, "rep": +5, "bandwidth": 0}
-    },
-    {
-        "id": "shadow_ai",
-        "type": "STRATEGY",
-        "icon": "🤖",
-        "title": "Shadow AI",
-        "image": "https://img.freepik.com/free-vector/robotic-artificial-intelligence-technology-smart-lerning-from-bigdata_1150-48136.jpg",
-        "text": "Marketing is pasting customer data into 'ChatBot Pro' (a sketchy free tool).",
-        "flavor": "\"But it writes such good emails!\"",
-        "choice_a": "Block Tool",
-        "choice_b": "Buy Enterprise Lic",
-        "impact_a": {"budget": 0, "risk": -10, "rep": -10, "bandwidth": -5},
-        "impact_b": {"budget": -15, "risk": -20, "rep": +5, "bandwidth": 0}
-    },
-    {
-        "id": "bug_bounty",
-        "type": "INCIDENT",
-        "icon": "🐛",
-        "title": "Bug Bounty",
-        "image": "https://img.freepik.com/free-vector/bug-fixing-concept-illustration_114360-3945.jpg",
-        "text": "A researcher found a SQL Injection in our login page. They want a payout.",
-        "flavor": "\"Pay me or I tweet about it.\"",
-        "choice_a": "Pay ($10k)",
-        "choice_b": "Ignore (Risky)",
-        "impact_a": {"budget": -10, "risk": -20, "rep": +5, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +20, "rep": -10, "bandwidth": 0}
-    },
-    {
-        "id": "phishing_test",
-        "type": "PEOPLE",
-        "icon": "🎣",
-        "title": "Phishing Fail",
-        "image": "https://img.freepik.com/free-vector/confused-man-working-laptop-cartoon-icon-illustration_138676-2422.jpg",
-        "text": "The VP of Engineering clicked your phishing test link. Again.",
-        "flavor": "\"I thought I won a free iPad...\"",
-        "choice_a": "Enforce Training",
-        "choice_b": "Let it slide",
-        "impact_a": {"budget": 0, "risk": -5, "rep": -5, "bandwidth": -5},
-        "impact_b": {"budget": 0, "risk": +10, "rep": +5, "bandwidth": 0}
-    }
-]
-
-# 2. RARE CARDS (5% Drop Rate)
-RARE_EVENTS = [
-    {
-        "id": "angel_investor",
-        "type": "LEGENDARY",
-        "icon": "💰",
-        "title": "Angel Investor",
-        "image": "https://img.freepik.com/free-vector/money-bag-concept-illustration_114360-639.jpg",
-        "text": "A VC is impressed by your security posture. They wrote a check specifically for your department.",
-        "flavor": "\"Security is a differentiator. Here's $50k.\"",
-        "choice_a": "Hire Staff",
-        "choice_b": "Buy New Toys",
-        "impact_a": {"budget": +50, "risk": 0, "rep": +10, "bandwidth": +30},
-        "impact_b": {"budget": +20, "risk": -20, "rep": +10, "bandwidth": 0}
-    },
-    {
-        "id": "fbi_raid",
-        "type": "LEGENDARY",
-        "icon": "🚨",
-        "title": "FBI Takedown",
-        "image": "https://img.freepik.com/free-vector/police-car-concept-illustration_114360-1288.jpg",
-        "text": "The FBI seized the servers of a vendor you were worried about. The threat is gone.",
-        "flavor": "\"Ladies and gentlemen, we got him.\"",
-        "choice_a": "Celebrate",
-        "choice_b": "Analyze Logs",
-        "impact_a": {"budget": 0, "risk": -30, "rep": 0, "bandwidth": +10},
-        "impact_b": {"budget": 0, "risk": -40, "rep": +5, "bandwidth": -10}
-    }
-]
-
-# 3. BOSS BATTLE: APT CAMPAIGN (Sequential)
-BOSS_APT = [
-    {
-        "id": "apt_1",
-        "type": "BOSS PHASE 1",
-        "icon": "☠️",
-        "title": "Suspicious Login",
-        "image": "https://img.freepik.com/free-vector/cyber-attack-concept-illustration_114360-1897.jpg",
-        "text": "BOSS BATTLE START! \n\nA admin account just logged in from North Korea. It's 3 AM.",
-        "flavor": "Phase 1/3: Initial Access",
-        "choice_a": "Reset Password",
-        "choice_b": "Watch & Wait",
-        "impact_a": {"budget": 0, "risk": -5, "rep": 0, "bandwidth": -5},
-        "impact_b": {"budget": 0, "risk": +10, "rep": 0, "bandwidth": 0}
-    },
-    {
-        "id": "apt_2",
-        "type": "BOSS PHASE 2",
-        "icon": "☠️",
-        "title": "Lateral Movement",
-        "image": "https://img.freepik.com/free-vector/hacker-activity-concept-illustration_114360-2330.jpg",
-        "text": "The attacker is scanning the internal network. They found the Domain Controller.",
-        "flavor": "Phase 2/3: Escalation",
-        "choice_a": "Cut Internet",
-        "choice_b": "Deploy Decoys",
-        "impact_a": {"budget": -10, "risk": -10, "rep": -20, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +5, "rep": 0, "bandwidth": -10}
-    },
-    {
-        "id": "apt_3",
-        "type": "BOSS PHASE 3",
-        "icon": "☠️",
-        "title": "Data Exfiltration",
-        "image": "https://img.freepik.com/free-vector/data-extraction-concept-illustration_114360-4869.jpg",
-        "text": "They are trying to upload 50GB of customer data to Dropbox.",
-        "flavor": "Phase 3/3: The Finale",
-        "choice_a": "Block IP Range",
-        "choice_b": "Let it ride (Honeypot)",
-        "impact_a": {"budget": 0, "risk": -20, "rep": +10, "bandwidth": 0},
-        "impact_b": {"budget": 0, "risk": +50, "rep": +50, "bandwidth": 0} # High risk gamble
-    }
-]
+def get_deck_by_type(all_cards, card_type):
+    # Filter cards based on type (LEGENDARY, BOSS, or standard)
+    if card_type == "STANDARD":
+        return [c for c in all_cards if "BOSS" not in c['type'] and "LEGENDARY" not in c['type']]
+    elif card_type == "LEGENDARY":
+        return [c for c in all_cards if c['type'] == "LEGENDARY"]
+    elif card_type == "BOSS":
+        # Sort boss cards by ID to ensure order (apt_1, apt_2, etc)
+        boss_cards = [c for c in all_cards if "BOSS" in c['type']]
+        return sorted(boss_cards, key=lambda x: x['id'])
+    return []
 
 # --- GAME ENGINE ---
 
 def init_game():
+    # Load Data
+    all_cards = load_scenarios()
+    
     if 'stats' not in st.session_state:
         # HARDER STARTING STATS
         st.session_state.stats = {'budget': 40, 'rep': 50, 'risk': 20, 'bandwidth': 30}
@@ -322,9 +192,13 @@ def init_game():
     if 'history' not in st.session_state:
         st.session_state.history = []
     
-    # Deck Logic
-    if 'deck' not in st.session_state:
-        refill_deck()
+    # Initialize Decks in Session State
+    if 'standard_deck' not in st.session_state:
+        deck = get_deck_by_type(all_cards, "STANDARD")
+        random.shuffle(deck)
+        st.session_state.standard_deck = deck
+        st.session_state.legendary_deck = get_deck_by_type(all_cards, "LEGENDARY")
+        st.session_state.boss_deck = get_deck_by_type(all_cards, "BOSS")
     
     # Boss Logic
     if 'boss_mode' not in st.session_state:
@@ -335,16 +209,11 @@ def init_game():
     if 'current_card' not in st.session_state:
         draw_card()
 
-def refill_deck():
-    # Create a fresh shuffled list of standard event IDs
-    st.session_state.deck = list(range(len(STANDARD_EVENTS)))
-    random.shuffle(st.session_state.deck)
-
 def draw_card():
-    # 1. BOSS CHECK: Are we in a boss battle?
+    # 1. BOSS CHECK
     if st.session_state.boss_mode:
-        if st.session_state.boss_stage < len(BOSS_APT):
-            st.session_state.current_card = BOSS_APT[st.session_state.boss_stage]
+        if st.session_state.boss_stage < len(st.session_state.boss_deck):
+            st.session_state.current_card = st.session_state.boss_deck[st.session_state.boss_stage]
             return
         else:
             # Boss Defeated
@@ -353,26 +222,30 @@ def draw_card():
             st.toast("🏆 BOSS DEFEATED! Reputation +20")
             st.session_state.stats['rep'] += 20
 
-    # 2. TRIGGER BOSS: 5% Chance to start Boss Battle (if not already in one)
+    # 2. TRIGGER BOSS (5% Chance after week 3)
     if not st.session_state.boss_mode and random.random() < 0.05 and st.session_state.week > 3:
         st.session_state.boss_mode = True
         st.session_state.boss_stage = 0
-        st.session_state.current_card = BOSS_APT[0]
+        st.session_state.current_card = st.session_state.boss_deck[0]
         st.toast("🚨 ALERT: APT GROUP DETECTED!")
         return
 
-    # 3. RARE CARD: 5% Chance
-    if random.random() < 0.05:
-        st.session_state.current_card = random.choice(RARE_EVENTS)
+    # 3. LEGENDARY CARD (5% Chance)
+    if random.random() < 0.05 and st.session_state.legendary_deck:
+        st.session_state.current_card = random.choice(st.session_state.legendary_deck)
         st.toast("✨ LEGENDARY EVENT!")
         return
 
     # 4. STANDARD DRAW
-    if not st.session_state.deck:
-        refill_deck()
+    # Refill if empty
+    if not st.session_state.standard_deck:
+        all_cards = load_scenarios()
+        deck = get_deck_by_type(all_cards, "STANDARD")
+        random.shuffle(deck)
+        st.session_state.standard_deck = deck
     
-    idx = st.session_state.deck.pop()
-    st.session_state.current_card = STANDARD_EVENTS[idx]
+    if st.session_state.standard_deck:
+        st.session_state.current_card = st.session_state.standard_deck.pop()
 
 def apply_effect(impact, choice_text):
     # Update Stats
@@ -465,34 +338,37 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # 4. CARD RENDER
-card = st.session_state.current_card
+if 'current_card' in st.session_state and st.session_state.current_card:
+    card = st.session_state.current_card
 
-# Dynamic Border Color for Boss Mode
-border_class = "boss-mode" if st.session_state.boss_mode else ""
+    # Dynamic Border Color for Boss Mode
+    border_class = "boss-mode" if st.session_state.boss_mode else ""
 
-st.markdown(f"""
-<div class="game-card {border_class}">
-    <div class="card-inner">
-        <div class="card-header">
-            <div class="card-title">{card['title']}</div>
-            <div class="card-type-badge">{card['type']}</div>
-        </div>
-        <div class="card-image-frame">
-            <img src="{card['image']}" class="card-img">
-        </div>
-        <div class="card-body">
-            <div class="card-desc">{card['text']}</div>
-            <div class="flavor-text">{card['flavor']}</div>
+    st.markdown(f"""
+    <div class="game-card {border_class}">
+        <div class="card-inner">
+            <div class="card-header">
+                <div class="card-title">{card['title']}</div>
+                <div class="card-type-badge">{card['type']}</div>
+            </div>
+            <div class="card-image-frame">
+                <img src="{card['image']}" class="card-img">
+            </div>
+            <div class="card-body">
+                <div class="card-desc">{card['text']}</div>
+                <div class="flavor-text">{card['flavor']}</div>
+            </div>
         </div>
     </div>
-</div>
-""", unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
-# 5. ACTION BUTTONS
-c1, c2 = st.columns(2)
-with c1:
-    if st.button(f"⬅ {card['choice_a']}", help=get_impact_string(card['impact_a'])):
-        apply_effect(card['impact_a'], card['choice_a'])
-with c2:
-    if st.button(f"➡ {card['choice_b']}", help=get_impact_string(card['impact_b'])):
-        apply_effect(card['impact_b'], card['choice_b'])
+    # 5. ACTION BUTTONS
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button(f"⬅ {card['choice_a']}", help=get_impact_string(card['impact_a'])):
+            apply_effect(card['impact_a'], card['choice_a'])
+    with c2:
+        if st.button(f"➡ {card['choice_b']}", help=get_impact_string(card['impact_b'])):
+            apply_effect(card['impact_b'], card['choice_b'])
+else:
+    st.error("No card loaded. Check scenarios.json")
