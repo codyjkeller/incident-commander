@@ -155,3 +155,76 @@
     "impact_a": {"budget": -5, "risk": 10, "rep": 0, "bandwidth": 0},
     "impact_b": {"budget": -5, "risk": -10, "rep": 5, "bandwidth": -10}
   },
+  {
+    "id": "ceo_fraud",
+    "type": "PEOPLE",
+    "title": "CEO Whaling",
+    "image": "https://img.freepik.com/free-vector/boss-concept-illustration_114360-1282.jpg",
+    "text": "Finance just wired $50k to a fake vendor because the 'CEO' emailed them urgently.",
+    "flavor": "\"It looked real! The font was the same!\"",
+    "choice_a": "Absorb Loss",
+    "choice_b": "Fire Controller",
+    "impact_a": {"budget": -15, "risk": 0, "rep": -5, "bandwidth": 0},
+    "impact_b": {"budget": 0, "risk": 5, "rep": -10, "bandwidth": -15}
+  },
+  {
+    "id": "unencrypted_laptop",
+    "type": "INCIDENT",
+    "title": "Lost Laptop",
+    "image": "https://img.freepik.com/free-vector/lost-items-concept-illustration_114360-1239.jpg",
+    "text": "An HR manager left their laptop in an Uber. It wasn't encrypted.",
+    "flavor": "\"It has the salary spreadsheet on the desktop.\"",
+    "choice_a": "Remote Wipe (Fail?)",
+    "choice_b": "Disclose Breach",
+    "impact_a": {"budget": 0, "risk": 20, "rep": 0, "bandwidth": 0},
+    "impact_b": {"budget": -5, "risk": -10, "rep": -20, "bandwidth": -5}
+  },
+  {
+    "id": "s3_leak",
+    "type": "INCIDENT",
+    "title": "Leaky Bucket",
+    "image": "https://img.freepik.com/free-vector/cloud-computing-security-concept-illustration_114360-1249.jpg",
+    "text": "A researcher found 1TB of customer scans in a public S3 bucket.",
+    "flavor": "\"Who set permissions to 'Public Read'?\"",
+    "choice_a": "Silent Fix",
+    "choice_b": "Public Apology",
+    "impact_a": {"budget": 0, "risk": 30, "rep": -5, "bandwidth": 0},
+    "impact_b": {"budget": 0, "risk": -10, "rep": -15, "bandwidth": -5}
+  },
+  {
+    "id": "legacy_legacy",
+    "type": "STRATEGY",
+    "title": "Windows 2008 R2",
+    "image": "https://img.freepik.com/free-vector/old-computer-concept-illustration_114360-2012.jpg",
+    "text": "The core billing app runs on a server that hasn't been patched since 2015.",
+    "flavor": "\"If we reboot it, it might never turn back on.\"",
+    "choice_a": "Keep Running",
+    "choice_b": "Rewrite App ($$$)",
+    "impact_a": {"budget": 0, "risk": 15, "rep": 0, "bandwidth": 0},
+    "impact_b": {"budget": -30, "risk": -20, "rep": 5, "bandwidth": -10}
+  },
+  {
+    "id": "conf_talk",
+    "type": "PEOPLE",
+    "title": "Keynote Speaker",
+    "image": "https://img.freepik.com/free-vector/public-speaking-concept-illustration_114360-1294.jpg",
+    "text": "BlackHat invited you to speak about your security program. Great PR!",
+    "flavor": "\"Please don't demo a live hack.\"",
+    "choice_a": "Accept (Reputation)",
+    "choice_b": "Decline (Focus)",
+    "impact_a": {"budget": -5, "risk": 5, "rep": 20, "bandwidth": -10},
+    "impact_b": {"budget": 0, "risk": 0, "rep": -5, "bandwidth": 5}
+  },
+  {
+    "id": "vpn_day",
+    "type": "INCIDENT",
+    "title": "VPN Zero-Day",
+    "image": "https://img.freepik.com/free-vector/vpn-concept-illustration_114360-2432.jpg",
+    "text": "Our VPN provider just announced a critical RCE vulnerability.",
+    "flavor": "\"Everyone working remote is now a target.\"",
+    "choice_a": "Emergency Patch",
+    "choice_b": "Disable VPN",
+    "impact_a": {"budget": 0, "risk": -20, "rep": 0, "bandwidth": -20},
+    "impact_b": {"budget": 0, "risk": -40, "rep": -20, "bandwidth": 0}
+  }
+]
