@@ -71,6 +71,7 @@ body::after{
 .card-type{position:absolute;top:12px;right:12px;font-family:var(--font-display);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;background:rgba(0,0,0,.6);color:var(--text-dim);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);z-index:2;}
 .card-type.boss{background:rgba(255,0,60,.2);color:var(--neon-pink);border-color:rgba(255,0,60,.3)}
 .card-type.legendary{background:rgba(255,215,0,.15);color:var(--neon-gold);border-color:rgba(255,215,0,.2)}
+.card-type.wildcard{background:rgba(0,255,157,.15);color:var(--neon-green);border-color:rgba(0,255,157,.2)}
 
 /* CARD VISUAL */
 .card-visual{height:150px;overflow:hidden;border-radius:16px 16px 0 0;position:relative;display:flex;align-items:center;justify-content:center;}
@@ -85,6 +86,7 @@ body::after{
 .card-visual.t-people .card-visual-bg{background:linear-gradient(135deg,#1a0a2d,#2d0a1a,#1a1a0a)}
 .card-visual.t-strategy .card-visual-bg{background:linear-gradient(135deg,#0a1a1a,#0a2d2d,#1a0a2d)}
 .card-visual.t-legendary .card-visual-bg{background:linear-gradient(135deg,#2d2d0a,#3d1a0a,#2d0a1a)}
+.card-visual.t-wildcard .card-visual-bg{background:linear-gradient(135deg,#0a2d1a,#0a3d2d,#0a1a2d)}
 .card-visual.t-boss .card-visual-bg{background:linear-gradient(135deg,#2d0a0a,#3d0a0a,#1a0a0a);animation:bossPulse 2s ease infinite}
 @keyframes bossPulse{0%,100%{opacity:.8}50%{opacity:1}}
 .card-content{padding:18px 20px 14px;}
@@ -109,6 +111,8 @@ body::after{
 @keyframes bossGlow{0%,100%{box-shadow:inset 0 0 30px rgba(255,0,60,.03)}50%{box-shadow:inset 0 0 60px rgba(255,0,60,.08)}}
 .card.legendary-card{border-color:rgba(255,215,0,.3);box-shadow:0 0 50px rgba(255,215,0,.1)}
 .card.legendary-card::before{background:conic-gradient(from 0deg,var(--neon-gold),#ff8c00,var(--neon-gold),#fff4a0,var(--neon-gold));opacity:.5;}
+.card.wildcard-card{border-color:rgba(0,255,157,.3);box-shadow:0 0 50px rgba(0,255,157,.1)}
+.card.wildcard-card::before{background:conic-gradient(from 0deg,var(--neon-green),var(--neon-cyan),var(--neon-green),#80ffcc,var(--neon-green));opacity:.5;}
 
 /* OVERLAYS */
 .overlay{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;background:rgba(5,5,16,.97);backdrop-filter:blur(20px);opacity:0;pointer-events:none;transition:opacity .5s ease;}
@@ -141,6 +145,8 @@ body::after{
 .diff-btn{font-family:var(--font-display);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s;}
 .diff-btn:hover{border-color:var(--text);color:var(--text)}
 .diff-btn.sel{border-color:var(--neon-cyan);color:var(--neon-cyan);background:rgba(0,229,255,.06)}
+.diff-desc{display:block;font-size:8px;letter-spacing:1px;color:var(--text-dim);margin-top:4px;font-weight:300;text-transform:none;}
+.diff-btn.sel .diff-desc{color:var(--neon-cyan);opacity:.7}
 .diff-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;font-family:var(--font-display);text-transform:uppercase;}
 
 /* PROGRESS */
@@ -241,9 +247,9 @@ body::after{
     <div class="overlay-sub">Survive 52 weeks as the CISO. Every decision costs something. If any metric flatlines, you're fired.</div>
     <div class="diff-label">Select Difficulty</div>
     <div class="diff-select">
-      <button class="diff-btn" onclick="selDiff('easy',this)">Easy</button>
-      <button class="diff-btn sel" onclick="selDiff('normal',this)">Normal</button>
-      <button class="diff-btn" onclick="selDiff('hard',this)">Hard</button>
+      <button class="diff-btn" onclick="selDiff('easy',this)">Easy<span class="diff-desc">$60k / 60 Trust / 10% Risk / 50 Team</span></button>
+      <button class="diff-btn sel" onclick="selDiff('normal',this)">Normal<span class="diff-desc">$40k / 50 Trust / 20% Risk / 30 Team</span></button>
+      <button class="diff-btn" onclick="selDiff('hard',this)">Hard<span class="diff-desc">$25k / 35 Trust / 35% Risk / 20 Team</span></button>
     </div>
     <button class="overlay-btn" onclick="game.start()">Accept the Role</button>
   </div>
@@ -298,16 +304,16 @@ function setSetting(key,val,el){
 // ============================================================
 // ICONS
 // ============================================================
-const ICONS={ransomware:'\u{1F480}',sales_override:'\u{1F91D}',log4j:'\u26A0\uFE0F',audit_fail:'\u{1F4CB}',angel_investor:'\u{1F4B0}',fbi_raid:'\u{1F6A8}',apt_1:'\u{1F512}',apt_2:'\u{1F50D}',apt_3:'\u{1F4E5}',solar_winds:'\u{1F3ED}',insider_threat:'\u{1F621}',gdpr_fine:'\u2696\uFE0F',crypto_miner:'\u26CF',ceo_fraud:'\u{1F9B9}',unencrypted_laptop:'\u{1F4BB}',s3_leak:'\u2601\uFE0F',legacy_legacy:'\u{1F5B3}',conf_talk:'\u{1F3A4}',vpn_day:'\u{1F510}',phishing_drill:'\u{1F3AF}',shadow_it:'\u{1F47B}',cloud_migration:'\u{1F680}',pen_test:'\u{1F52C}',board_meeting:'\u{1F4CA}',mfa_rollout:'\u{1F511}',patch_tuesday:'\u{1F4E6}',budget_cut:'\u2702\uFE0F',new_hire:'\u{1F468}\u200D\u{1F4BB}',vendor_breach:'\u{1F517}',social_eng:'\u{1F3AD}',compliance_deadline:'\u23F0',data_retention:'\u{1F5C4}',ai_incident:'\u{1F916}',physical_security:'\u{1F6AA}',insurance_renewal:'\u{1F4DD}',whistleblower:'\u{1F4E3}',media_inquiry:'\u{1F4F0}',tabletop_exercise:'\u{1F3B2}'};
+const ICONS={ransomware:'\u{1F480}',sales_override:'\u{1F91D}',log4j:'\u26A0\uFE0F',audit_fail:'\u{1F4CB}',angel_investor:'\u{1F4B0}',fbi_raid:'\u{1F6A8}',apt_1:'\u{1F512}',apt_2:'\u{1F50D}',apt_3:'\u{1F4E5}',solar_winds:'\u{1F3ED}',insider_threat:'\u{1F621}',gdpr_fine:'\u2696\uFE0F',crypto_miner:'\u26CF',ceo_fraud:'\u{1F9B9}',unencrypted_laptop:'\u{1F4BB}',s3_leak:'\u2601\uFE0F',legacy_legacy:'\u{1F5B3}',conf_talk:'\u{1F3A4}',vpn_day:'\u{1F510}',phishing_drill:'\u{1F3AF}',shadow_it:'\u{1F47B}',cloud_migration:'\u{1F680}',pen_test:'\u{1F52C}',board_meeting:'\u{1F4CA}',mfa_rollout:'\u{1F511}',patch_tuesday:'\u{1F4E6}',budget_cut:'\u2702\uFE0F',new_hire:'\u{1F468}\u200D\u{1F4BB}',vendor_breach:'\u{1F517}',social_eng:'\u{1F3AD}',compliance_deadline:'\u23F0',data_retention:'\u{1F5C4}',ai_incident:'\u{1F916}',physical_security:'\u{1F6AA}',insurance_renewal:'\u{1F4DD}',whistleblower:'\u{1F4E3}',media_inquiry:'\u{1F4F0}',tabletop_exercise:'\u{1F3B2}',rg_1:'\u{1F4B5}',rg_2:'\u{1F4AC}',rg_3:'\u{1F4A3}',hk_1:'\u{1F310}',hk_2:'\u{1F4E2}',hk_3:'\u{1F525}',wc_emergency_fund:'\u{1F4B6}',wc_audit_pass:'\u2705',wc_team_rally:'\u{1F4AA}',wc_risk_transfer:'\u{1F6E1}'};
 
 function typeClass(t){
-  if(t.includes('BOSS'))return 't-boss';if(t==='LEGENDARY')return 't-legendary';
+  if(t.includes('BOSS'))return 't-boss';if(t==='LEGENDARY')return 't-legendary';if(t==='WILDCARD')return 't-wildcard';
   const l=t.toLowerCase();
   return l==='incident'?'t-incident':l==='vendor'?'t-vendor':l==='audit'?'t-audit':l==='people'?'t-people':l==='strategy'?'t-strategy':'t-incident';
 }
 
 // ============================================================
-// SCENARIOS (38 cards)
+// SCENARIOS (51 cards: 32 standard, 2 legendary, 9 boss, 4 wildcard, 4 new types)
 // ============================================================
 const S=[
   // --- ORIGINAL 19 ---
@@ -350,23 +356,40 @@ const S=[
   {id:"insurance_renewal",type:"STRATEGY",title:"Cyber Insurance",text:"Your cyber insurance premium tripled. The underwriter wants proof of EDR and MFA.",flavor:"\"We can drop coverage or pay up.\"",choice_a:"Pay Premium ($$$)",choice_b:"Drop Coverage",impact_a:{budget:-20,risk:-15,rep:5,bandwidth:0},impact_b:{budget:10,risk:25,rep:-5,bandwidth:0}},
   {id:"whistleblower",type:"PEOPLE",title:"Whistleblower",text:"An anonymous employee reported the VP of Sales for sharing customer data on personal email.",flavor:"\"I have screenshots.\"",choice_a:"Investigate Formally",choice_b:"Quiet Conversation",impact_a:{budget:-5,risk:-10,rep:-5,bandwidth:-10},impact_b:{budget:0,risk:10,rep:5,bandwidth:0}},
   {id:"media_inquiry",type:"PEOPLE",title:"Media Inquiry",text:"A journalist from Wired is asking about 'security incidents at your company.' You have no idea what they know.",flavor:"\"We're running the story Friday with or without comment.\"",choice_a:"No Comment",choice_b:"Controlled Statement",impact_a:{budget:0,risk:5,rep:-15,bandwidth:0},impact_b:{budget:0,risk:0,rep:-5,bandwidth:-5}},
-  {id:"tabletop_exercise",type:"STRATEGY",title:"Tabletop Exercise",text:"You want to run an IR tabletop exercise but the exec team says they're too busy.",flavor:"\"Can't we just do this over email?\"",choice_a:"Force the Meeting",choice_b:"Cancel It",impact_a:{budget:-5,risk:-15,rep:-5,bandwidth:-10},impact_b:{budget:0,risk:10,rep:0,bandwidth:5}}
+  {id:"tabletop_exercise",type:"STRATEGY",title:"Tabletop Exercise",text:"You want to run an IR tabletop exercise but the exec team says they're too busy.",flavor:"\"Can't we just do this over email?\"",choice_a:"Force the Meeting",choice_b:"Cancel It",impact_a:{budget:-5,risk:-15,rep:-5,bandwidth:-10},impact_b:{budget:0,risk:10,rep:0,bandwidth:5}},
+
+  // --- BOSS: RANSOMWARE GANG (3 phases) ---
+  {id:"rg_1",type:"BOSS PHASE 1",title:"Ransom Note",text:"BOSS BATTLE START! A ransomware gang has encrypted the file server. They want $200k in Bitcoin.",flavor:"Phase 1/3: Initial Demand",boss:"rg",choice_a:"Engage Negotiator",choice_b:"Refuse Contact",impact_a:{budget:-10,risk:-5,rep:0,bandwidth:-5},impact_b:{budget:0,risk:10,rep:5,bandwidth:0}},
+  {id:"rg_2",type:"BOSS PHASE 2",title:"Double Extortion",text:"They've started leaking employee data on the dark web. The press is calling.",flavor:"Phase 2/3: Escalation",boss:"rg",choice_a:"Pay Partial Ransom",choice_b:"Go Public First",impact_a:{budget:-20,risk:-10,rep:-10,bandwidth:0},impact_b:{budget:0,risk:5,rep:-15,bandwidth:-10}},
+  {id:"rg_3",type:"BOSS PHASE 3",title:"Decryption Gamble",text:"They sent a decryption key but it only works on 60% of files. Backups are 3 weeks old.",flavor:"Phase 3/3: Recovery",boss:"rg",choice_a:"Restore from Backup",choice_b:"Pay for Full Key",impact_a:{budget:-5,risk:10,rep:0,bandwidth:-15},impact_b:{budget:-25,risk:-15,rep:-5,bandwidth:0}},
+
+  // --- BOSS: HACKTIVIST COLLECTIVE (3 phases) ---
+  {id:"hk_1",type:"BOSS PHASE 1",title:"#OpExpose",text:"BOSS BATTLE START! A hacktivist group is targeting your company over a controversial contract.",flavor:"Phase 1/3: Recon & Doxing",boss:"hk",choice_a:"Scrub Exec Info",choice_b:"Ignore the Noise",impact_a:{budget:-5,risk:-5,rep:0,bandwidth:-10},impact_b:{budget:0,risk:15,rep:0,bandwidth:0}},
+  {id:"hk_2",type:"BOSS PHASE 2",title:"DDoS Barrage",text:"They've launched a sustained DDoS attack. Customer-facing services are down.",flavor:"Phase 2/3: Disruption",boss:"hk",choice_a:"Activate CDN/WAF",choice_b:"Take Services Offline",impact_a:{budget:-15,risk:-10,rep:5,bandwidth:-5},impact_b:{budget:0,risk:0,rep:-20,bandwidth:0}},
+  {id:"hk_3",type:"BOSS PHASE 3",title:"Defacement",text:"They defaced the company website with leaked internal emails and a manifesto.",flavor:"Phase 3/3: Public Humiliation",boss:"hk",choice_a:"Restore & Harden",choice_b:"PR Counteroffensive",impact_a:{budget:-10,risk:-15,rep:-10,bandwidth:-10},impact_b:{budget:-5,risk:5,rep:10,bandwidth:-5}},
+
+  // --- WILDCARDS ---
+  {id:"wc_emergency_fund",type:"WILDCARD",title:"Emergency Fund",text:"The CFO found unallocated Q3 budget. They're offering it to security before finance claws it back.",flavor:"\"Take it before the VP of Sales sees this.\"",choice_a:"Take the Money",choice_b:"Request Double",impact_a:{budget:25,risk:0,rep:0,bandwidth:0},impact_b:{budget:15,risk:0,rep:10,bandwidth:0}},
+  {id:"wc_audit_pass",type:"WILDCARD",title:"Clean Audit",text:"The auditors wrapped up early. No findings. They called your program 'best in class.'",flavor:"\"We've never seen evidence this organized.\"",choice_a:"Celebrate Publicly",choice_b:"Stay Humble",impact_a:{budget:0,risk:-15,rep:20,bandwidth:5},impact_b:{budget:0,risk:-20,rep:10,bandwidth:10}},
+  {id:"wc_team_rally",type:"WILDCARD",title:"Team Rally",text:"After a grueling quarter, your team is fired up. Morale is at an all-time high.",flavor:"\"We actually LIKE working here.\"",choice_a:"Team Offsite",choice_b:"Channel the Energy",impact_a:{budget:-10,risk:0,rep:5,bandwidth:25},impact_b:{budget:0,risk:-10,rep:0,bandwidth:20}},
+  {id:"wc_risk_transfer",type:"WILDCARD",title:"Risk Transfer",text:"Your insurance carrier approved a claim from a previous incident. Check is in the mail.",flavor:"\"See? That premium was worth it.\"",choice_a:"Reinvest in Tools",choice_b:"Rebuild Reserve",impact_a:{budget:10,risk:-20,rep:5,bandwidth:0},impact_b:{budget:25,risk:-10,rep:0,bandwidth:0}}
 ];
 
 // ============================================================
 // SCORING
 // ============================================================
-function calcGrade(stats,week,lost){
+function calcGrade(stats,week,lost,bossCount){
   if(lost){
     const w=week-1;
     if(w>=40)return{grade:'C',label:'Almost Made It',cls:'grade-c'};
     if(w>=20)return{grade:'F',label:'Terminated',cls:'grade-f'};
     return{grade:'F',label:'Terminated',cls:'grade-f'};
   }
-  const score=stats.budget+stats.rep+(100-stats.risk)+stats.bandwidth;
-  if(score>=300)return{grade:'S',label:'Legendary CISO',cls:'grade-s'};
-  if(score>=240)return{grade:'A',label:'Elite Operator',cls:'grade-a'};
-  if(score>=180)return{grade:'B',label:'Competent',cls:'grade-b'};
+  let score=stats.budget+stats.rep+(100-stats.risk)+stats.bandwidth;
+  score+=bossCount*25; // bonus for each boss defeated
+  if(score>=350)return{grade:'S',label:'Legendary CISO',cls:'grade-s'};
+  if(score>=280)return{grade:'A',label:'Elite Operator',cls:'grade-a'};
+  if(score>=200)return{grade:'B',label:'Competent',cls:'grade-b'};
   if(score>=120)return{grade:'C',label:'Barely Survived',cls:'grade-c'};
   return{grade:'F',label:'Needs Improvement',cls:'grade-f'};
 }
@@ -378,22 +401,33 @@ const WIN_SUBS={
   B:'The board approved your contract renewal. The analysts are confused, but impressed.',
   C:'You technically survived, but the board is watching. One more quarter like this and you\'re out.'
 };
+const WIN_ICONS={S:'\u{1F451}',A:'\u{1F947}',B:'\u{1F3C6}',C:'\u{1F62C}'};
+
+// ============================================================
+// BOSS DEFINITIONS
+// ============================================================
+const BOSSES=[
+  {id:'apt',name:'Nation-State APT',cards:['apt_1','apt_2','apt_3'],minWeek:5,toast:'APT GROUP DETECTED!',reward:20},
+  {id:'rg',name:'Ransomware Gang',cards:['rg_1','rg_2','rg_3'],minWeek:15,toast:'RANSOMWARE GANG INCOMING!',reward:15},
+  {id:'hk',name:'Hacktivist Collective',cards:['hk_1','hk_2','hk_3'],minWeek:25,toast:'HACKTIVIST OP LAUNCHED!',reward:15}
+];
 
 // ============================================================
 // GAME ENGINE
 // ============================================================
 const game={
-  stats:{},week:1,history:[],sDeck:[],lDeck:[],bDeck:[],
-  bossMode:false,bossStage:0,cur:null,busy:false,
+  stats:{},week:1,history:[],sDeck:[],lDeck:[],wcDeck:[],
+  bossMode:false,bossStage:0,activeBoss:null,defeatedBosses:new Set(),
+  cur:null,busy:false,
 
   start(){
     const d=DIFF[selectedDiff];
     this.stats={budget:d.budget,rep:d.rep,risk:d.risk,bandwidth:d.bandwidth};
-    this.week=1;this.history=[];this.bossMode=false;this.bossStage=0;this.busy=false;
-    this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY');
+    this.week=1;this.history=[];this.bossMode=false;this.bossStage=0;this.activeBoss=null;this.defeatedBosses=new Set();this.busy=false;
+    this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY'&&c.type!=='WILDCARD');
     this.shuf(this.sDeck);
     this.lDeck=S.filter(c=>c.type==='LEGENDARY');
-    this.bDeck=S.filter(c=>c.type.includes('BOSS')).sort((a,b)=>a.id.localeCompare(b.id));
+    this.wcDeck=S.filter(c=>c.type==='WILDCARD');
     document.getElementById('start-screen').classList.remove('active');
     document.getElementById('gameover-screen').classList.remove('active');
     document.getElementById('win-screen').classList.remove('active');
@@ -405,19 +439,46 @@ const game={
   shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}},
 
   draw(){
-    if(this.bossMode){
-      if(this.bossStage<this.bDeck.length){this.cur=this.bDeck[this.bossStage];this.render();return;}
-      else{this.bossMode=false;this.bossStage=0;this.stats.rep=Math.min(100,this.stats.rep+20);document.getElementById('app').classList.remove('boss-active');this.toast('BOSS DEFEATED! Trust +20','var(--neon-gold)');}
+    // Active boss sequence
+    if(this.bossMode&&this.activeBoss){
+      const bCards=this.activeBoss.cards;
+      if(this.bossStage<bCards.length){
+        this.cur=S.find(c=>c.id===bCards[this.bossStage]);
+        this.render();return;
+      }else{
+        // Boss defeated
+        this.defeatedBosses.add(this.activeBoss.id);
+        const reward=this.activeBoss.reward;
+        this.stats.rep=Math.min(100,this.stats.rep+reward);
+        this.bossMode=false;this.bossStage=0;this.activeBoss=null;
+        document.getElementById('app').classList.remove('boss-active');
+        this.toast('BOSS DEFEATED! Trust +'+reward,'var(--neon-gold)');
+      }
     }
-    if(!this.bossMode&&this.week>3&&Math.random()<0.05){
-      this.bossMode=true;this.bossStage=0;document.getElementById('app').classList.add('boss-active');
-      this.cur=this.bDeck[0];this.toast('APT GROUP DETECTED!','var(--neon-pink)');this.render();return;
+    // Try to trigger a new boss (6% chance, after minWeek, not during boss, not already defeated)
+    if(!this.bossMode&&this.week>4&&Math.random()<0.06){
+      const eligible=BOSSES.filter(b=>this.week>=b.minWeek&&!this.defeatedBosses.has(b.id));
+      if(eligible.length){
+        const boss=eligible[Math.floor(Math.random()*eligible.length)];
+        this.bossMode=true;this.bossStage=0;this.activeBoss=boss;
+        document.getElementById('app').classList.add('boss-active');
+        this.cur=S.find(c=>c.id===boss.cards[0]);
+        this.toast(boss.toast,'var(--neon-pink)');
+        this.render();return;
+      }
     }
+    // Wildcard (4% chance)
+    if(Math.random()<0.04&&this.wcDeck.length){
+      this.cur=this.wcDeck[Math.floor(Math.random()*this.wcDeck.length)];
+      this.toast('WILDCARD!','var(--neon-green)');this.render();return;
+    }
+    // Legendary (5% chance)
     if(Math.random()<0.05&&this.lDeck.length){
       this.cur=this.lDeck[Math.floor(Math.random()*this.lDeck.length)];
       this.toast('LEGENDARY EVENT!','var(--neon-gold)');this.render();return;
     }
-    if(!this.sDeck.length){this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY');this.shuf(this.sDeck);}
+    // Standard
+    if(!this.sDeck.length){this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY'&&c.type!=='WILDCARD');this.shuf(this.sDeck);}
     this.cur=this.sDeck.pop();this.render();
   },
 
@@ -430,10 +491,12 @@ const game={
     te.textContent=c.type;te.className='card-type';
     if(c.type.includes('BOSS'))te.classList.add('boss');
     else if(c.type==='LEGENDARY')te.classList.add('legendary');
+    else if(c.type==='WILDCARD')te.classList.add('wildcard');
     vis.className='card-visual '+typeClass(c.type);
     ico.textContent=ICONS[c.id]||'\u{1F6E1}';
-    card.classList.remove('legendary-card');
+    card.classList.remove('legendary-card','wildcard-card');
     if(c.type==='LEGENDARY')card.classList.add('legendary-card');
+    if(c.type==='WILDCARD')card.classList.add('wildcard-card');
     document.getElementById('btn-a-text').textContent=c.choice_a;
     document.getElementById('btn-b-text').textContent=c.choice_b;
     document.getElementById('btn-a-impact').textContent=settings.preview?this.impStr(c.impact_a):'';
@@ -493,7 +556,7 @@ const game={
     else if(s.bandwidth<=0){r='BURNOUT';i='\u{1F629}';sub='Your entire team quit on the same day. You are the only one left.';}
     if(!r)return false;
     document.getElementById('app').classList.add('shake');setTimeout(()=>document.getElementById('app').classList.remove('shake'),300);
-    const g=calcGrade(this.stats,this.week,true);
+    const g=calcGrade(this.stats,this.week,true,this.defeatedBosses.size);
     document.getElementById('go-icon').textContent=i;
     document.getElementById('go-title').textContent=r;
     document.getElementById('go-sub').textContent=sub;
@@ -506,9 +569,12 @@ const game={
 
   checkWin(){
     if(this.week<52)return false;
-    const g=calcGrade(this.stats,this.week,false);
+    const bc=this.defeatedBosses.size;
+    const g=calcGrade(this.stats,this.week,false,bc);
     document.getElementById('win-title').textContent=WIN_TITLES[g.grade]||'You Survived';
-    document.getElementById('win-sub').textContent=WIN_SUBS[g.grade]||'';
+    const bossTxt=bc>0?' You defeated '+bc+' boss encounter'+(bc>1?'s':'')+'.':'';
+    document.getElementById('win-sub').textContent=(WIN_SUBS[g.grade]||'')+bossTxt;
+    document.getElementById('win-screen').querySelector('.overlay-icon').textContent=WIN_ICONS[g.grade]||'\u{1F3C6}';
     document.getElementById('win-grade').textContent=g.grade;
     document.getElementById('win-grade').className='grade-badge '+g.cls;
     document.getElementById('win-grade-label').textContent=g.label;
