@@ -19,6 +19,7 @@
   --card-w:min(420px, 92vw);
   --font-display:'Oxanium',sans-serif;
   --font-body:'Chakra Petch',sans-serif;
+  --anim-speed:350ms;
 }
 html,body{
   height:100%;overflow:hidden;
@@ -31,110 +32,53 @@ body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
 }
-#app{
-  display:flex;flex-direction:column;
-  height:100%;max-width:480px;margin:0 auto;
-  position:relative;overflow:hidden;
-}
+#app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;overflow:hidden;}
 
-/* --- TOP BAR --- */
-.top-bar{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:10px 16px 6px;flex-shrink:0;
-  border-bottom:1px solid var(--border);
-  background:rgba(5,5,16,.95);backdrop-filter:blur(12px);z-index:10;
-}
-.top-bar .title{
-  font-family:var(--font-display);font-size:11px;
-  letter-spacing:3px;text-transform:uppercase;
-  color:var(--neon-cyan);text-shadow:0 0 10px rgba(0,229,255,.3);
-}
-.top-bar-right{display:flex;align-items:center;gap:12px;}
-.week-badge{
-  font-family:var(--font-display);font-size:10px;
-  letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);
-}
+/* TOP BAR */
+.top-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px 6px;flex-shrink:0;border-bottom:1px solid var(--border);background:rgba(5,5,16,.95);backdrop-filter:blur(12px);z-index:10;}
+.top-bar .title{font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--neon-cyan);text-shadow:0 0 10px rgba(0,229,255,.3);}
+.top-bar-right{display:flex;align-items:center;gap:8px;}
+.week-badge{font-family:var(--font-display);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);}
 .week-badge span{color:var(--text);font-weight:700;font-size:14px;}
-.log-btn{
-  width:28px;height:28px;border-radius:6px;
-  background:var(--surface);border:1px solid var(--border);
-  color:var(--text-dim);font-size:13px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all .2s;flex-shrink:0;
-}
-.log-btn:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.tb-btn{width:28px;height:28px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.tb-btn:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
 
-/* --- HUD --- */
-.hud{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:6px;padding:10px 12px;flex-shrink:0;
-  background:var(--surface);border-bottom:1px solid var(--border);
-}
+/* HUD */
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:10px 12px;flex-shrink:0;background:var(--surface);border-bottom:1px solid var(--border);}
 .stat-box{text-align:center;}
 .stat-label{font-family:var(--font-display);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;}
 .stat-val{font-family:var(--font-display);font-size:22px;font-weight:700;transition:all .4s ease;}
 .stat-bar{height:3px;border-radius:2px;margin-top:4px;background:rgba(255,255,255,.06);overflow:hidden;}
 .stat-bar-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.22,1,.36,1);}
-.stat-box[data-stat="budget"] .stat-val{color:var(--neon-green)}
-.stat-box[data-stat="budget"] .stat-bar-fill{background:var(--neon-green)}
-.stat-box[data-stat="rep"] .stat-val{color:var(--neon-cyan)}
-.stat-box[data-stat="rep"] .stat-bar-fill{background:var(--neon-cyan)}
-.stat-box[data-stat="risk"] .stat-val{color:var(--neon-pink)}
-.stat-box[data-stat="risk"] .stat-bar-fill{background:var(--neon-pink)}
-.stat-box[data-stat="bandwidth"] .stat-val{color:var(--neon-purple)}
-.stat-box[data-stat="bandwidth"] .stat-bar-fill{background:var(--neon-purple)}
-.stat-val.flash-up{animation:flashUp .6s ease}
-.stat-val.flash-down{animation:flashDown .6s ease}
+.stat-box[data-stat="budget"] .stat-val{color:var(--neon-green)}.stat-box[data-stat="budget"] .stat-bar-fill{background:var(--neon-green)}
+.stat-box[data-stat="rep"] .stat-val{color:var(--neon-cyan)}.stat-box[data-stat="rep"] .stat-bar-fill{background:var(--neon-cyan)}
+.stat-box[data-stat="risk"] .stat-val{color:var(--neon-pink)}.stat-box[data-stat="risk"] .stat-bar-fill{background:var(--neon-pink)}
+.stat-box[data-stat="bandwidth"] .stat-val{color:var(--neon-purple)}.stat-box[data-stat="bandwidth"] .stat-bar-fill{background:var(--neon-purple)}
+.stat-val.flash-up{animation:flashUp .6s ease}.stat-val.flash-down{animation:flashDown .6s ease}
 @keyframes flashUp{0%{transform:scale(1.4);filter:brightness(2)}100%{transform:scale(1);filter:brightness(1)}}
 @keyframes flashDown{0%{transform:scale(1.4);filter:brightness(2)}100%{transform:scale(1);filter:brightness(1)}}
 .stat-val.critical{animation:critPulse 1s ease infinite}
 @keyframes critPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* --- CARD AREA --- */
+/* CARD AREA */
 .card-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:12px;}
-
-/* --- CARD --- */
-.card{
-  width:var(--card-w);background:var(--surface);border-radius:16px;
-  border:1px solid var(--border);position:relative;
-  box-shadow:0 0 60px rgba(0,0,0,.6),0 0 1px rgba(0,229,255,.2);
-  transition:box-shadow .3s;cursor:grab;user-select:none;-webkit-user-select:none;
-  transform-origin:center center;will-change:transform;
-}
+.card{width:var(--card-w);background:var(--surface);border-radius:16px;border:1px solid var(--border);position:relative;box-shadow:0 0 60px rgba(0,0,0,.6),0 0 1px rgba(0,229,255,.2);transition:box-shadow .3s;cursor:grab;user-select:none;-webkit-user-select:none;transform-origin:center center;will-change:transform;}
 .card.swiping{cursor:grabbing;transition:none}
-.card.animate-enter{animation:cardEnter .35s cubic-bezier(.22,1,.36,1) forwards}
+.card.animate-enter{animation:cardEnter var(--anim-speed) cubic-bezier(.22,1,.36,1) forwards}
 @keyframes cardEnter{0%{transform:translateY(40px) scale(.95);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
-.card::before{
-  content:"";position:absolute;inset:-1px;border-radius:17px;
-  background:conic-gradient(from 0deg,var(--neon-cyan),var(--neon-pink),var(--neon-purple),var(--neon-cyan));
-  opacity:0;transition:opacity .4s;z-index:-1;filter:blur(1px);
-}
+.card::before{content:"";position:absolute;inset:-1px;border-radius:17px;background:conic-gradient(from 0deg,var(--neon-cyan),var(--neon-pink),var(--neon-purple),var(--neon-cyan));opacity:0;transition:opacity .4s;z-index:-1;filter:blur(1px);}
 .card:hover::before,.card.swiping::before{opacity:.6}
-
-.card-type{
-  position:absolute;top:12px;right:12px;font-family:var(--font-display);font-size:9px;
-  letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;
-  background:rgba(0,0,0,.6);color:var(--text-dim);backdrop-filter:blur(8px);
-  border:1px solid rgba(255,255,255,.08);z-index:2;
-}
+.card-type{position:absolute;top:12px;right:12px;font-family:var(--font-display);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;background:rgba(0,0,0,.6);color:var(--text-dim);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.08);z-index:2;}
 .card-type.boss{background:rgba(255,0,60,.2);color:var(--neon-pink);border-color:rgba(255,0,60,.3)}
 .card-type.legendary{background:rgba(255,215,0,.15);color:var(--neon-gold);border-color:rgba(255,215,0,.2)}
 
-/* --- CARD VISUAL (replaces images) --- */
-.card-visual{
-  height:150px;overflow:hidden;border-radius:16px 16px 0 0;
-  position:relative;display:flex;align-items:center;justify-content:center;
-}
+/* CARD VISUAL */
+.card-visual{height:150px;overflow:hidden;border-radius:16px 16px 0 0;position:relative;display:flex;align-items:center;justify-content:center;}
 .card-visual-bg{position:absolute;inset:0;opacity:.8;}
-.card-visual-bg::after{
-  content:"";position:absolute;inset:0;
-  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
-  background-size:24px 24px;
-}
+.card-visual-bg::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:24px 24px;}
 .card-visual-icon{font-size:56px;position:relative;z-index:1;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));animation:iconFloat 4s ease-in-out infinite;}
 @keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 .card-visual::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,var(--surface));z-index:1;pointer-events:none;}
-
 .card-visual.t-incident .card-visual-bg{background:linear-gradient(135deg,#1a0a0a,#2d0a1a,#0a0a2d)}
 .card-visual.t-vendor .card-visual-bg{background:linear-gradient(135deg,#0a1a0a,#0a2d1a,#0a1a2d)}
 .card-visual.t-audit .card-visual-bg{background:linear-gradient(135deg,#0a0a1a,#1a0a2d,#2d0a2d)}
@@ -143,48 +87,31 @@ body::after{
 .card-visual.t-legendary .card-visual-bg{background:linear-gradient(135deg,#2d2d0a,#3d1a0a,#2d0a1a)}
 .card-visual.t-boss .card-visual-bg{background:linear-gradient(135deg,#2d0a0a,#3d0a0a,#1a0a0a);animation:bossPulse 2s ease infinite}
 @keyframes bossPulse{0%,100%{opacity:.8}50%{opacity:1}}
-
 .card-content{padding:18px 20px 14px;}
 .card-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;text-shadow:0 0 12px rgba(0,229,255,.15);}
 .card-text{font-size:15px;line-height:1.55;color:var(--text);margin-bottom:12px;}
 .card-flavor{font-size:12px;font-style:italic;color:var(--text-dim);border-top:1px solid var(--border);padding-top:10px;}
-
-.swipe-hint{
-  position:absolute;top:0;bottom:0;width:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-size:12px;letter-spacing:2px;text-transform:uppercase;
-  opacity:0;transition:opacity .2s;pointer-events:none;z-index:5;border-radius:16px;padding:0 16px;text-align:center;
-}
+.swipe-hint{position:absolute;top:0;bottom:0;width:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:12px;letter-spacing:2px;text-transform:uppercase;opacity:0;transition:opacity .2s;pointer-events:none;z-index:5;border-radius:16px;padding:0 16px;text-align:center;}
 .swipe-hint.left{left:0;background:linear-gradient(to right,rgba(0,229,255,.15),transparent);color:var(--neon-cyan);}
 .swipe-hint.right{right:0;background:linear-gradient(to left,rgba(255,0,96,.15),transparent);color:var(--neon-pink);}
 
-/* --- CHOICES --- */
+/* CHOICES */
 .choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px 12px;flex-shrink:0;}
-.choice-btn{
-  font-family:var(--font-display);font-size:12px;letter-spacing:1px;text-transform:uppercase;
-  padding:14px 10px;border:1px solid var(--border);border-radius:10px;
-  background:var(--surface);color:var(--text);cursor:pointer;transition:all .2s;
-}
+.choice-btn{font-family:var(--font-display);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:14px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer;transition:all .2s;}
 .choice-btn:active{transform:scale(.97)}
 .choice-btn.left:hover,.choice-btn.left:focus{border-color:var(--neon-cyan);color:var(--neon-cyan);box-shadow:0 0 20px rgba(0,229,255,.1);}
 .choice-btn.right:hover,.choice-btn.right:focus{border-color:var(--neon-pink);color:var(--neon-pink);box-shadow:0 0 20px rgba(255,0,96,.1);}
 .choice-impact{display:block;font-size:9px;letter-spacing:1px;color:var(--text-dim);margin-top:4px;font-weight:300;}
 
-/* --- BOSS / LEGENDARY --- */
+/* BOSS / LEGENDARY */
 #app.boss-active{animation:bossGlow 2s ease infinite}
 #app.boss-active .card{border-color:rgba(255,0,60,.4);box-shadow:0 0 40px rgba(255,0,60,.15)}
 @keyframes bossGlow{0%,100%{box-shadow:inset 0 0 30px rgba(255,0,60,.03)}50%{box-shadow:inset 0 0 60px rgba(255,0,60,.08)}}
 .card.legendary-card{border-color:rgba(255,215,0,.3);box-shadow:0 0 50px rgba(255,215,0,.1)}
 .card.legendary-card::before{background:conic-gradient(from 0deg,var(--neon-gold),#ff8c00,var(--neon-gold),#fff4a0,var(--neon-gold));opacity:.5;}
 
-/* --- OVERLAYS --- */
-.overlay{
-  position:absolute;inset:0;z-index:100;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:30px;text-align:center;
-  background:rgba(5,5,16,.97);backdrop-filter:blur(20px);
-  opacity:0;pointer-events:none;transition:opacity .5s ease;
-}
+/* OVERLAYS */
+.overlay{position:absolute;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;background:rgba(5,5,16,.97);backdrop-filter:blur(20px);opacity:0;pointer-events:none;transition:opacity .5s ease;}
 .overlay.active{opacity:1;pointer-events:all}
 .overlay-icon{font-size:64px;margin-bottom:16px}
 .overlay-title{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
@@ -193,49 +120,56 @@ body::after{
 .overlay-stat{padding:10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-family:var(--font-display);}
 .overlay-stat .label{font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase}
 .overlay-stat .val{font-size:20px;font-weight:700;margin-top:2px}
-.overlay-btn{
-  font-family:var(--font-display);font-size:13px;letter-spacing:2px;text-transform:uppercase;
-  padding:14px 36px;border-radius:8px;border:1px solid var(--neon-cyan);
-  background:transparent;color:var(--neon-cyan);cursor:pointer;transition:all .2s;
-}
+.overlay-btn{font-family:var(--font-display);font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:14px 36px;border-radius:8px;border:1px solid var(--neon-cyan);background:transparent;color:var(--neon-cyan);cursor:pointer;transition:all .2s;margin:4px;}
 .overlay-btn:hover{background:rgba(0,229,255,.1);box-shadow:0 0 20px rgba(0,229,255,.2)}
-.overlay-btn.danger{border-color:var(--neon-pink);color:var(--neon-pink)}
-.overlay-btn.danger:hover{background:rgba(255,0,96,.1)}
+.overlay-btn.danger{border-color:var(--neon-pink);color:var(--neon-pink)}.overlay-btn.danger:hover{background:rgba(255,0,96,.1)}
 .overlay.loss .overlay-title{color:var(--neon-pink);text-shadow:0 0 20px rgba(255,0,60,.4)}
 .overlay.win .overlay-title{color:var(--neon-gold);text-shadow:0 0 20px rgba(255,215,0,.4)}
 .overlay.start .overlay-title{color:var(--neon-cyan);text-shadow:0 0 20px rgba(0,229,255,.4)}
 
-/* --- PROGRESS --- */
+/* GRADE */
+.grade-badge{font-family:var(--font-display);font-size:48px;font-weight:700;margin:8px 0 4px;letter-spacing:4px;}
+.grade-label{font-size:13px;color:var(--text-dim);margin-bottom:16px;letter-spacing:1px;}
+.grade-s{color:var(--neon-gold);text-shadow:0 0 30px rgba(255,215,0,.5)}
+.grade-a{color:var(--neon-green);text-shadow:0 0 20px rgba(0,255,157,.4)}
+.grade-b{color:var(--neon-cyan);text-shadow:0 0 20px rgba(0,229,255,.4)}
+.grade-c{color:var(--neon-purple);text-shadow:0 0 20px rgba(179,71,234,.4)}
+.grade-f{color:var(--neon-pink);text-shadow:0 0 20px rgba(255,0,96,.4)}
+
+/* DIFFICULTY */
+.diff-select{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center;}
+.diff-btn{font-family:var(--font-display);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s;}
+.diff-btn:hover{border-color:var(--text);color:var(--text)}
+.diff-btn.sel{border-color:var(--neon-cyan);color:var(--neon-cyan);background:rgba(0,229,255,.06)}
+.diff-label{font-size:11px;color:var(--text-dim);margin-bottom:8px;letter-spacing:2px;font-family:var(--font-display);text-transform:uppercase;}
+
+/* PROGRESS */
 .progress-bar{height:3px;flex-shrink:0;background:rgba(255,255,255,.04)}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));transition:width .6s cubic-bezier(.22,1,.36,1);}
 
-/* --- HISTORY DRAWER (from top) --- */
-.history-backdrop{position:absolute;inset:0;z-index:45;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
-.history-backdrop.open{opacity:1;pointer-events:all}
-.history-drawer{
-  position:absolute;top:0;left:0;right:0;max-height:60%;z-index:50;
-  background:rgba(12,12,26,.98);border-bottom:1px solid var(--border);
-  border-radius:0 0 16px 16px;transform:translateY(-100%);
-  transition:transform .35s cubic-bezier(.22,1,.36,1);
-  overflow-y:auto;padding:20px 16px;backdrop-filter:blur(16px);
-}
-.history-drawer.open{transform:translateY(0)}
-.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-.history-drawer h3{font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);}
-.history-close{
-  width:28px;height:28px;border-radius:6px;background:transparent;
-  border:1px solid var(--border);color:var(--text-dim);font-size:16px;
-  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;
-}
-.history-close:hover{border-color:var(--neon-pink);color:var(--neon-pink)}
-.history-item{font-size:12px;color:var(--text-dim);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}
-.history-item:last-child{border:none}
+/* DRAWERS */
+.drawer-backdrop{position:absolute;inset:0;z-index:45;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
+.drawer-backdrop.open{opacity:1;pointer-events:all}
+.drawer{position:absolute;top:0;left:0;right:0;max-height:70%;z-index:50;background:rgba(12,12,26,.98);border-bottom:1px solid var(--border);border-radius:0 0 16px 16px;transform:translateY(-100%);transition:transform .35s cubic-bezier(.22,1,.36,1);overflow-y:auto;padding:20px 16px;backdrop-filter:blur(16px);}
+.drawer.open{transform:translateY(0)}
+.drawer-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.drawer h3{font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);}
+.drawer-close{width:28px;height:28px;border-radius:6px;background:transparent;border:1px solid var(--border);color:var(--text-dim);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.drawer-close:hover{border-color:var(--neon-pink);color:var(--neon-pink)}
+.history-item{font-size:12px;color:var(--text-dim);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}.history-item:last-child{border:none}
 .history-empty{font-size:12px;color:var(--text-dim);font-style:italic}
+
+/* SETTINGS */
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);}.setting-row:last-child{border:none}
+.setting-label{font-family:var(--font-display);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--text);}
+.setting-options{display:flex;gap:4px;}
+.setting-opt{font-family:var(--font-display);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 10px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s;}
+.setting-opt:hover{border-color:var(--text);color:var(--text)}
+.setting-opt.active{border-color:var(--neon-cyan);color:var(--neon-cyan);background:rgba(0,229,255,.06)}
 
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .shake{animation:shake .3s ease}
 @keyframes toastIn{0%{opacity:0;transform:translateX(-50%) translateY(10px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
-
 @media(min-width:600px){.card-visual{height:170px}.card-content{padding:22px 26px 18px}}
 </style>
 </head>
@@ -245,7 +179,8 @@ body::after{
     <div class="title">Incident Commander</div>
     <div class="top-bar-right">
       <div class="week-badge">Week <span id="week-num">1</span> / 52</div>
-      <button class="log-btn" id="log-btn" onclick="toggleHistory()" title="CISO Logs">&#9776;</button>
+      <button class="tb-btn" onclick="toggleDrawer('history')" title="CISO Logs">&#9776;</button>
+      <button class="tb-btn" onclick="toggleDrawer('settings')" title="Settings">&#9881;</button>
     </div>
   </div>
   <div class="hud">
@@ -272,35 +207,98 @@ body::after{
     <button class="choice-btn right" id="btn-b" onclick="game.choose('b')"><span id="btn-b-text"></span><span class="choice-impact" id="btn-b-impact"></span></button>
   </div>
   <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
-  <div class="history-backdrop" id="history-backdrop" onclick="closeHistory()"></div>
-  <div class="history-drawer" id="history-drawer">
-    <div class="history-header"><h3>CISO Logs</h3><button class="history-close" onclick="closeHistory()">&times;</button></div>
+
+  <div class="drawer-backdrop" id="drawer-backdrop" onclick="closeDrawers()"></div>
+
+  <div class="drawer" id="history-drawer">
+    <div class="drawer-header"><h3>CISO Logs</h3><button class="drawer-close" onclick="closeDrawers()">&times;</button></div>
     <div id="history-list"><div class="history-empty">No decisions yet.</div></div>
   </div>
+
+  <div class="drawer" id="settings-drawer">
+    <div class="drawer-header"><h3>Settings</h3><button class="drawer-close" onclick="closeDrawers()">&times;</button></div>
+    <div class="setting-row">
+      <div class="setting-label">Card Speed</div>
+      <div class="setting-options">
+        <button class="setting-opt" onclick="setSetting('speed',200,this)">Fast</button>
+        <button class="setting-opt active" onclick="setSetting('speed',350,this)">Normal</button>
+        <button class="setting-opt" onclick="setSetting('speed',500,this)">Slow</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Impact Preview</div>
+      <div class="setting-options">
+        <button class="setting-opt active" onclick="setSetting('preview',true,this)">On</button>
+        <button class="setting-opt" onclick="setSetting('preview',false,this)">Off</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- START -->
   <div class="overlay start active" id="start-screen">
     <div class="overlay-icon">&#128737;</div>
     <div class="overlay-title">Incident Commander</div>
-    <div class="overlay-sub">CISO Edition &mdash; Survive 52 weeks as the Chief Information Security Officer. Every decision costs something. If any metric flatlines, you're fired.</div>
+    <div class="overlay-sub">Survive 52 weeks as the CISO. Every decision costs something. If any metric flatlines, you're fired.</div>
+    <div class="diff-label">Select Difficulty</div>
+    <div class="diff-select">
+      <button class="diff-btn" onclick="selDiff('easy',this)">Easy</button>
+      <button class="diff-btn sel" onclick="selDiff('normal',this)">Normal</button>
+      <button class="diff-btn" onclick="selDiff('hard',this)">Hard</button>
+    </div>
     <button class="overlay-btn" onclick="game.start()">Accept the Role</button>
   </div>
+
+  <!-- GAME OVER -->
   <div class="overlay loss" id="gameover-screen">
     <div class="overlay-icon" id="go-icon"></div>
     <div class="overlay-title" id="go-title"></div>
     <div class="overlay-sub" id="go-sub"></div>
+    <div class="grade-badge grade-f" id="go-grade">F</div>
+    <div class="grade-label" id="go-grade-label">Terminated</div>
     <div class="overlay-stats" id="go-stats"></div>
     <button class="overlay-btn danger" onclick="game.start()">Try Again</button>
   </div>
+
+  <!-- WIN -->
   <div class="overlay win" id="win-screen">
     <div class="overlay-icon">&#127942;</div>
-    <div class="overlay-title">You Survived</div>
-    <div class="overlay-sub">The Board has approved your contract renewal. The analysts are confused, but impressed.</div>
+    <div class="overlay-title" id="win-title">You Survived</div>
+    <div class="overlay-sub" id="win-sub"></div>
+    <div class="grade-badge" id="win-grade">B</div>
+    <div class="grade-label" id="win-grade-label">Competent</div>
     <div class="overlay-stats" id="win-stats"></div>
     <button class="overlay-btn" onclick="game.start()">Start Year 2</button>
   </div>
 </div>
 
 <script>
-const ICONS={ransomware:'\u{1F480}',sales_override:'\u{1F91D}',log4j:'\u26A0\uFE0F',audit_fail:'\u{1F4CB}',angel_investor:'\u{1F4B0}',fbi_raid:'\u{1F6A8}',apt_1:'\u{1F512}',apt_2:'\u{1F50D}',apt_3:'\u{1F4E5}',solar_winds:'\u{1F3ED}',insider_threat:'\u{1F621}',gdpr_fine:'\u2696\uFE0F',crypto_miner:'\u26CF',ceo_fraud:'\u{1F9B9}',unencrypted_laptop:'\u{1F4BB}',s3_leak:'\u2601\uFE0F',legacy_legacy:'\u{1F5B3}',conf_talk:'\u{1F3A4}',vpn_day:'\u{1F510}'};
+// ============================================================
+// CONFIG
+// ============================================================
+const DIFF={
+  easy:{budget:60,rep:60,risk:10,bandwidth:50},
+  normal:{budget:40,rep:50,risk:20,bandwidth:30},
+  hard:{budget:25,rep:35,risk:35,bandwidth:20}
+};
+let selectedDiff='normal';
+let settings={speed:350,preview:true};
+
+function selDiff(d,el){
+  selectedDiff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+function setSetting(key,val,el){
+  if(key==='speed'){settings.speed=val;document.documentElement.style.setProperty('--anim-speed',val+'ms');}
+  if(key==='preview'){settings.preview=val;if(game.cur)game.render();}
+  el.parentElement.querySelectorAll('.setting-opt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ============================================================
+// ICONS
+// ============================================================
+const ICONS={ransomware:'\u{1F480}',sales_override:'\u{1F91D}',log4j:'\u26A0\uFE0F',audit_fail:'\u{1F4CB}',angel_investor:'\u{1F4B0}',fbi_raid:'\u{1F6A8}',apt_1:'\u{1F512}',apt_2:'\u{1F50D}',apt_3:'\u{1F4E5}',solar_winds:'\u{1F3ED}',insider_threat:'\u{1F621}',gdpr_fine:'\u2696\uFE0F',crypto_miner:'\u26CF',ceo_fraud:'\u{1F9B9}',unencrypted_laptop:'\u{1F4BB}',s3_leak:'\u2601\uFE0F',legacy_legacy:'\u{1F5B3}',conf_talk:'\u{1F3A4}',vpn_day:'\u{1F510}',phishing_drill:'\u{1F3AF}',shadow_it:'\u{1F47B}',cloud_migration:'\u{1F680}',pen_test:'\u{1F52C}',board_meeting:'\u{1F4CA}',mfa_rollout:'\u{1F511}',patch_tuesday:'\u{1F4E6}',budget_cut:'\u2702\uFE0F',new_hire:'\u{1F468}\u200D\u{1F4BB}',vendor_breach:'\u{1F517}',social_eng:'\u{1F3AD}',compliance_deadline:'\u23F0',data_retention:'\u{1F5C4}',ai_incident:'\u{1F916}',physical_security:'\u{1F6AA}',insurance_renewal:'\u{1F4DD}',whistleblower:'\u{1F4E3}',media_inquiry:'\u{1F4F0}',tabletop_exercise:'\u{1F3B2}'};
 
 function typeClass(t){
   if(t.includes('BOSS'))return 't-boss';if(t==='LEGENDARY')return 't-legendary';
@@ -308,7 +306,11 @@ function typeClass(t){
   return l==='incident'?'t-incident':l==='vendor'?'t-vendor':l==='audit'?'t-audit':l==='people'?'t-people':l==='strategy'?'t-strategy':'t-incident';
 }
 
+// ============================================================
+// SCENARIOS (38 cards)
+// ============================================================
 const S=[
+  // --- ORIGINAL 19 ---
   {id:"ransomware",type:"INCIDENT",title:"Ransomware",text:"A skull pops up on the CFO's laptop. They want 50 BTC or the financial data gets leaked.",flavor:"\"We accept Bitcoin or Monero. Tick tock.\"",choice_a:"Pay $50k Ransom",choice_b:"Rebuild (3 Days)",impact_a:{budget:-25,risk:-10,rep:-5,bandwidth:0},impact_b:{budget:0,risk:5,rep:5,bandwidth:-25}},
   {id:"sales_override",type:"VENDOR",title:"Sales Override",text:"The CRO demands we whitelist a sketchy AI tool to close a $1M deal before quarter-end.",flavor:"\"Just enable it for this one demo, please!\"",choice_a:"Block (Policy)",choice_b:"Allow (Revenue)",impact_a:{budget:0,risk:-5,rep:-15,bandwidth:0},impact_b:{budget:5,risk:20,rep:10,bandwidth:0}},
   {id:"log4j",type:"INCIDENT",title:"Zero-Day: Log4j",text:"Critical vulnerability found in your Java stack. Patching requires downtime.",flavor:"\"It's everywhere. Even in the coffee machine.\"",choice_a:"Patch Immediately",choice_b:"Wait for Weekend",impact_a:{budget:-5,risk:-40,rep:-15,bandwidth:-20},impact_b:{budget:0,risk:30,rep:5,bandwidth:5}},
@@ -327,15 +329,66 @@ const S=[
   {id:"s3_leak",type:"INCIDENT",title:"Leaky Bucket",text:"A researcher found 1TB of customer scans in a public S3 bucket.",flavor:"\"Who set permissions to 'Public Read'?\"",choice_a:"Silent Fix",choice_b:"Public Apology",impact_a:{budget:0,risk:30,rep:-5,bandwidth:0},impact_b:{budget:0,risk:-10,rep:-15,bandwidth:-5}},
   {id:"legacy_legacy",type:"STRATEGY",title:"Windows 2008 R2",text:"The core billing app runs on a server that hasn't been patched since 2015.",flavor:"\"If we reboot it, it might never turn back on.\"",choice_a:"Keep Running",choice_b:"Rewrite App ($$$)",impact_a:{budget:0,risk:15,rep:0,bandwidth:0},impact_b:{budget:-30,risk:-20,rep:5,bandwidth:-10}},
   {id:"conf_talk",type:"PEOPLE",title:"Keynote Speaker",text:"BlackHat invited you to speak about your security program. Great PR!",flavor:"\"Please don't demo a live hack.\"",choice_a:"Accept (Reputation)",choice_b:"Decline (Focus)",impact_a:{budget:-5,risk:5,rep:20,bandwidth:-10},impact_b:{budget:0,risk:0,rep:-5,bandwidth:5}},
-  {id:"vpn_day",type:"INCIDENT",title:"VPN Zero-Day",text:"Our VPN provider just announced a critical RCE vulnerability.",flavor:"\"Everyone working remote is now a target.\"",choice_a:"Emergency Patch",choice_b:"Disable VPN",impact_a:{budget:0,risk:-20,rep:0,bandwidth:-20},impact_b:{budget:0,risk:-40,rep:-20,bandwidth:0}}
+  {id:"vpn_day",type:"INCIDENT",title:"VPN Zero-Day",text:"Our VPN provider just announced a critical RCE vulnerability.",flavor:"\"Everyone working remote is now a target.\"",choice_a:"Emergency Patch",choice_b:"Disable VPN",impact_a:{budget:0,risk:-20,rep:0,bandwidth:-20},impact_b:{budget:0,risk:-40,rep:-20,bandwidth:0}},
+
+  // --- 19 NEW CARDS ---
+  {id:"phishing_drill",type:"STRATEGY",title:"Phishing Drill",text:"HR wants to run a company-wide phishing simulation. Execs hate being tricked.",flavor:"\"The CEO clicked the link. Twice.\"",choice_a:"Run It (Data)",choice_b:"Skip It (Peace)",impact_a:{budget:-5,risk:-15,rep:-10,bandwidth:-5},impact_b:{budget:0,risk:10,rep:5,bandwidth:0}},
+  {id:"shadow_it",type:"VENDOR",title:"Shadow IT",text:"Marketing deployed an entire CRM without telling IT. It's storing customer PII.",flavor:"\"We needed it live by Monday.\"",choice_a:"Shut It Down",choice_b:"Adopt & Secure",impact_a:{budget:0,risk:-10,rep:-15,bandwidth:0},impact_b:{budget:-10,risk:10,rep:5,bandwidth:-10}},
+  {id:"cloud_migration",type:"STRATEGY",title:"Cloud Migration",text:"The CTO wants to move everything to AWS in 90 days. Your team hasn't scoped security.",flavor:"\"Move fast and break things, right?\"",choice_a:"Block (Not Ready)",choice_b:"Support (Overtime)",impact_a:{budget:0,risk:-5,rep:-20,bandwidth:0},impact_b:{budget:-10,risk:15,rep:10,bandwidth:-20}},
+  {id:"pen_test",type:"STRATEGY",title:"Pen Test Results",text:"The external pen test found 3 criticals and 12 highs. The report just hit the CEO's desk.",flavor:"\"Page 1: We own your domain controller.\"",choice_a:"Emergency Fix Sprint",choice_b:"Remediate Over Quarter",impact_a:{budget:-15,risk:-25,rep:5,bandwidth:-20},impact_b:{budget:-5,risk:10,rep:-5,bandwidth:-5}},
+  {id:"board_meeting",type:"PEOPLE",title:"Board Presentation",text:"You have 15 minutes to present the security program to the board. They look bored already.",flavor:"\"Can you put that in a one-pager?\"",choice_a:"Deep Technical Brief",choice_b:"Business Risk Framing",impact_a:{budget:0,risk:0,rep:-10,bandwidth:-5},impact_b:{budget:5,risk:0,rep:15,bandwidth:0}},
+  {id:"mfa_rollout",type:"STRATEGY",title:"MFA Mandate",text:"You're rolling out mandatory MFA. The sales team is revolting.",flavor:"\"My password is fine! It's 'Sales2024!'\"",choice_a:"Force It (Mandate)",choice_b:"Phase In Slowly",impact_a:{budget:-5,risk:-20,rep:-10,bandwidth:-10},impact_b:{budget:0,risk:-5,rep:5,bandwidth:-5}},
+  {id:"patch_tuesday",type:"INCIDENT",title:"Patch Tuesday",text:"47 critical patches dropped. Your change window is this weekend but QA hasn't tested.",flavor:"\"Ship it. What could go wrong?\"",choice_a:"Patch Untested",choice_b:"Delay for QA",impact_a:{budget:0,risk:-15,rep:-5,bandwidth:0},impact_b:{budget:0,risk:10,rep:0,bandwidth:-10}},
+  {id:"budget_cut",type:"PEOPLE",title:"Budget Cuts",text:"Finance wants to cut your security budget by 30% next quarter. The CFO is cc'd.",flavor:"\"Everyone's tightening their belts.\"",choice_a:"Accept Cuts",choice_b:"Fight for Budget",impact_a:{budget:-20,risk:15,rep:0,bandwidth:0},impact_b:{budget:-5,risk:0,rep:-10,bandwidth:-5}},
+  {id:"new_hire",type:"PEOPLE",title:"Purple Unicorn",text:"A world-class threat hunter applied. They want $200k and remote Fridays.",flavor:"\"They have 5 CVEs named after them.\"",choice_a:"Hire (Expensive)",choice_b:"Pass (Budget)",impact_a:{budget:-20,risk:-15,rep:5,bandwidth:15},impact_b:{budget:0,risk:5,rep:0,bandwidth:0}},
+  {id:"vendor_breach",type:"VENDOR",title:"Vendor Breach",text:"Your payroll provider got breached. All employee SSNs may be exposed.",flavor:"\"They found out from Twitter.\"",choice_a:"Notify Employees",choice_b:"Wait for Vendor",impact_a:{budget:-10,risk:-10,rep:-10,bandwidth:-10},impact_b:{budget:0,risk:20,rep:5,bandwidth:0}},
+  {id:"social_eng",type:"INCIDENT",title:"Vishing Attack",text:"Someone called the help desk pretending to be the VP of Eng and got a password reset.",flavor:"\"He sounded exactly like Dave.\"",choice_a:"Reset All Exec Passwords",choice_b:"Training & Awareness",impact_a:{budget:0,risk:-15,rep:-5,bandwidth:-10},impact_b:{budget:-5,risk:5,rep:0,bandwidth:-5}},
+  {id:"compliance_deadline",type:"AUDIT",title:"SOC 2 Deadline",text:"The SOC 2 Type II audit is in 6 weeks. You're missing 12 controls.",flavor:"\"The auditor just asked for the evidence vault.\"",choice_a:"Crunch Mode",choice_b:"Request Extension",impact_a:{budget:-10,risk:-10,rep:5,bandwidth:-25},impact_b:{budget:0,risk:5,rep:-15,bandwidth:0}},
+  {id:"data_retention",type:"AUDIT",title:"Data Hoarding",text:"Legal discovered we're retaining customer data 5 years past policy. 4TB of PII.",flavor:"\"Delete it? But what if we need it?\"",choice_a:"Purge Everything",choice_b:"Keep & Encrypt",impact_a:{budget:-5,risk:-20,rep:5,bandwidth:-5},impact_b:{budget:-5,risk:10,rep:0,bandwidth:0}},
+  {id:"ai_incident",type:"INCIDENT",title:"AI Hallucination",text:"The customer-facing chatbot started leaking internal pricing data and API keys.",flavor:"\"It also told a customer to 'try turning off your firewall'.\"",choice_a:"Kill the Bot",choice_b:"Add Guardrails",impact_a:{budget:0,risk:-15,rep:-10,bandwidth:0},impact_b:{budget:-10,risk:5,rep:5,bandwidth:-10}},
+  {id:"physical_security",type:"INCIDENT",title:"Tailgating",text:"A stranger followed an employee into the server room. No badge, no questions asked.",flavor:"\"He said he was from the HVAC company.\"",choice_a:"Install Mantraps",choice_b:"Awareness Training",impact_a:{budget:-15,risk:-15,rep:0,bandwidth:0},impact_b:{budget:-5,risk:5,rep:0,bandwidth:-5}},
+  {id:"insurance_renewal",type:"STRATEGY",title:"Cyber Insurance",text:"Your cyber insurance premium tripled. The underwriter wants proof of EDR and MFA.",flavor:"\"We can drop coverage or pay up.\"",choice_a:"Pay Premium ($$$)",choice_b:"Drop Coverage",impact_a:{budget:-20,risk:-15,rep:5,bandwidth:0},impact_b:{budget:10,risk:25,rep:-5,bandwidth:0}},
+  {id:"whistleblower",type:"PEOPLE",title:"Whistleblower",text:"An anonymous employee reported the VP of Sales for sharing customer data on personal email.",flavor:"\"I have screenshots.\"",choice_a:"Investigate Formally",choice_b:"Quiet Conversation",impact_a:{budget:-5,risk:-10,rep:-5,bandwidth:-10},impact_b:{budget:0,risk:10,rep:5,bandwidth:0}},
+  {id:"media_inquiry",type:"PEOPLE",title:"Media Inquiry",text:"A journalist from Wired is asking about 'security incidents at your company.' You have no idea what they know.",flavor:"\"We're running the story Friday with or without comment.\"",choice_a:"No Comment",choice_b:"Controlled Statement",impact_a:{budget:0,risk:5,rep:-15,bandwidth:0},impact_b:{budget:0,risk:0,rep:-5,bandwidth:-5}},
+  {id:"tabletop_exercise",type:"STRATEGY",title:"Tabletop Exercise",text:"You want to run an IR tabletop exercise but the exec team says they're too busy.",flavor:"\"Can't we just do this over email?\"",choice_a:"Force the Meeting",choice_b:"Cancel It",impact_a:{budget:-5,risk:-15,rep:-5,bandwidth:-10},impact_b:{budget:0,risk:10,rep:0,bandwidth:5}}
 ];
 
+// ============================================================
+// SCORING
+// ============================================================
+function calcGrade(stats,week,lost){
+  if(lost){
+    const w=week-1;
+    if(w>=40)return{grade:'C',label:'Almost Made It',cls:'grade-c'};
+    if(w>=20)return{grade:'F',label:'Terminated',cls:'grade-f'};
+    return{grade:'F',label:'Terminated',cls:'grade-f'};
+  }
+  const score=stats.budget+stats.rep+(100-stats.risk)+stats.bandwidth;
+  if(score>=300)return{grade:'S',label:'Legendary CISO',cls:'grade-s'};
+  if(score>=240)return{grade:'A',label:'Elite Operator',cls:'grade-a'};
+  if(score>=180)return{grade:'B',label:'Competent',cls:'grade-b'};
+  if(score>=120)return{grade:'C',label:'Barely Survived',cls:'grade-c'};
+  return{grade:'F',label:'Needs Improvement',cls:'grade-f'};
+}
+
+const WIN_TITLES={S:'Legendary',A:'Outstanding',B:'You Survived',C:'Hanging On'};
+const WIN_SUBS={
+  S:'The board gave you a $500k retention bonus. Harvard wants a case study. You are the benchmark.',
+  A:'The board renewed your contract with a raise. Analysts are impressed. Risk is under control.',
+  B:'The board approved your contract renewal. The analysts are confused, but impressed.',
+  C:'You technically survived, but the board is watching. One more quarter like this and you\'re out.'
+};
+
+// ============================================================
+// GAME ENGINE
+// ============================================================
 const game={
   stats:{},week:1,history:[],sDeck:[],lDeck:[],bDeck:[],
   bossMode:false,bossStage:0,cur:null,busy:false,
 
   start(){
-    this.stats={budget:40,rep:50,risk:20,bandwidth:30};
+    const d=DIFF[selectedDiff];
+    this.stats={budget:d.budget,rep:d.rep,risk:d.risk,bandwidth:d.bandwidth};
     this.week=1;this.history=[];this.bossMode=false;this.bossStage=0;this.busy=false;
     this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY');
     this.shuf(this.sDeck);
@@ -360,7 +413,10 @@ const game={
       this.bossMode=true;this.bossStage=0;document.getElementById('app').classList.add('boss-active');
       this.cur=this.bDeck[0];this.toast('APT GROUP DETECTED!','var(--neon-pink)');this.render();return;
     }
-    if(Math.random()<0.05&&this.lDeck.length){this.cur=this.lDeck[Math.floor(Math.random()*this.lDeck.length)];this.toast('LEGENDARY EVENT!','var(--neon-gold)');this.render();return;}
+    if(Math.random()<0.05&&this.lDeck.length){
+      this.cur=this.lDeck[Math.floor(Math.random()*this.lDeck.length)];
+      this.toast('LEGENDARY EVENT!','var(--neon-gold)');this.render();return;
+    }
     if(!this.sDeck.length){this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY');this.shuf(this.sDeck);}
     this.cur=this.sDeck.pop();this.render();
   },
@@ -380,8 +436,8 @@ const game={
     if(c.type==='LEGENDARY')card.classList.add('legendary-card');
     document.getElementById('btn-a-text').textContent=c.choice_a;
     document.getElementById('btn-b-text').textContent=c.choice_b;
-    document.getElementById('btn-a-impact').textContent=this.impStr(c.impact_a);
-    document.getElementById('btn-b-impact').textContent=this.impStr(c.impact_b);
+    document.getElementById('btn-a-impact').textContent=settings.preview?this.impStr(c.impact_a):'';
+    document.getElementById('btn-b-impact').textContent=settings.preview?this.impStr(c.impact_b):'';
     document.getElementById('hint-left').textContent=c.choice_a;
     document.getElementById('hint-right').textContent=c.choice_b;
     card.classList.remove('animate-enter');void card.offsetWidth;card.classList.add('animate-enter');
@@ -393,7 +449,8 @@ const game={
     if(this.busy)return;this.busy=true;
     const c=this.cur,im=ch==='a'?c.impact_a:c.impact_b,ct=ch==='a'?c.choice_a:c.choice_b;
     const card=document.getElementById('game-card'),dir=ch==='a'?-1:1;
-    card.style.transition='transform .35s ease, opacity .35s ease';
+    const spd=settings.speed;
+    card.style.transition=`transform ${spd}ms ease, opacity ${spd}ms ease`;
     card.style.transform=`translateX(${dir*120}%) rotate(${dir*15}deg)`;card.style.opacity='0';
     setTimeout(()=>{
       const prev={...this.stats};
@@ -405,7 +462,7 @@ const game={
       if(this.checkWin()){this.busy=false;return;}
       card.style.transition='none';card.style.transform='translateX(0) rotate(0)';card.style.opacity='1';
       this.draw();this.busy=false;
-    },350);
+    },spd);
   },
 
   flash(prev){for(const k of['budget','rep','risk','bandwidth']){const el=document.getElementById('hud-'+k);el.classList.remove('flash-up','flash-down');if(this.stats[k]>prev[k]){void el.offsetWidth;el.classList.add('flash-up');}else if(this.stats[k]<prev[k]){void el.offsetWidth;el.classList.add('flash-down');}}},
@@ -426,8 +483,7 @@ const game={
   },
 
   prog(){document.getElementById('progress-fill').style.width=Math.min(100,Math.round((this.week/52)*100))+'%';},
-
-  histUI(){document.getElementById('history-list').innerHTML=this.history.slice(0,20).map(h=>`<div class="history-item">${h}</div>`).join('');},
+  histUI(){document.getElementById('history-list').innerHTML=this.history.slice(0,30).map(h=>`<div class="history-item">${h}</div>`).join('');},
 
   checkEnd(){
     const s=this.stats;let r=null,i='',sub='';
@@ -437,12 +493,28 @@ const game={
     else if(s.bandwidth<=0){r='BURNOUT';i='\u{1F629}';sub='Your entire team quit on the same day. You are the only one left.';}
     if(!r)return false;
     document.getElementById('app').classList.add('shake');setTimeout(()=>document.getElementById('app').classList.remove('shake'),300);
-    document.getElementById('go-icon').textContent=i;document.getElementById('go-title').textContent=r;document.getElementById('go-sub').textContent=sub;
+    const g=calcGrade(this.stats,this.week,true);
+    document.getElementById('go-icon').textContent=i;
+    document.getElementById('go-title').textContent=r;
+    document.getElementById('go-sub').textContent=sub;
+    document.getElementById('go-grade').textContent=g.grade;
+    document.getElementById('go-grade').className='grade-badge '+g.cls;
+    document.getElementById('go-grade-label').textContent=g.label+' \u2022 Week '+(this.week-1);
     document.getElementById('go-stats').innerHTML=this.oStats();
     setTimeout(()=>document.getElementById('gameover-screen').classList.add('active'),400);return true;
   },
 
-  checkWin(){if(this.week<52)return false;document.getElementById('win-stats').innerHTML=this.oStats();setTimeout(()=>document.getElementById('win-screen').classList.add('active'),400);return true;},
+  checkWin(){
+    if(this.week<52)return false;
+    const g=calcGrade(this.stats,this.week,false);
+    document.getElementById('win-title').textContent=WIN_TITLES[g.grade]||'You Survived';
+    document.getElementById('win-sub').textContent=WIN_SUBS[g.grade]||'';
+    document.getElementById('win-grade').textContent=g.grade;
+    document.getElementById('win-grade').className='grade-badge '+g.cls;
+    document.getElementById('win-grade-label').textContent=g.label;
+    document.getElementById('win-stats').innerHTML=this.oStats();
+    setTimeout(()=>document.getElementById('win-screen').classList.add('active'),400);return true;
+  },
 
   oStats(){const s=this.stats;return `<div class="overlay-stat"><div class="label">Budget</div><div class="val" style="color:var(--neon-green)">$${s.budget}k</div></div><div class="overlay-stat"><div class="label">Trust</div><div class="val" style="color:var(--neon-cyan)">${s.rep}</div></div><div class="overlay-stat"><div class="label">Risk</div><div class="val" style="color:var(--neon-pink)">${s.risk}%</div></div><div class="overlay-stat"><div class="label">Team</div><div class="val" style="color:var(--neon-purple)">${s.bandwidth}</div></div>`;},
 
@@ -454,7 +526,9 @@ const game={
   }
 };
 
+// ============================================================
 // SWIPE
+// ============================================================
 (function(){
   const card=document.getElementById('game-card'),hL=document.getElementById('hint-left'),hR=document.getElementById('hint-right');
   let sx=0,dx=0,drag=false;const T=80;
@@ -465,10 +539,24 @@ const game={
   card.addEventListener('mousedown',st);window.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
 })();
 
-function toggleHistory(){const d=document.getElementById('history-drawer'),b=document.getElementById('history-backdrop');const o=!d.classList.contains('open');d.classList.toggle('open',o);b.classList.toggle('open',o);}
-function closeHistory(){document.getElementById('history-drawer').classList.remove('open');document.getElementById('history-backdrop').classList.remove('open');}
-
-document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')game.choose('a');if(e.key==='ArrowRight'||e.key==='d')game.choose('b');if(e.key==='Escape')closeHistory();});
+// ============================================================
+// DRAWERS
+// ============================================================
+let openDrawer=null;
+function toggleDrawer(id){
+  const d=document.getElementById(id+'-drawer'),b=document.getElementById('drawer-backdrop');
+  if(openDrawer===id){closeDrawers();return;}
+  closeDrawers();openDrawer=id;d.classList.add('open');b.classList.add('open');
+}
+function closeDrawers(){
+  document.querySelectorAll('.drawer').forEach(d=>d.classList.remove('open'));
+  document.getElementById('drawer-backdrop').classList.remove('open');openDrawer=null;
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a')game.choose('a');
+  if(e.key==='ArrowRight'||e.key==='d')game.choose('b');
+  if(e.key==='Escape')closeDrawers();
+});
 </script>
 </body>
 </html>
