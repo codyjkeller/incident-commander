@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#050510">
+<title>Incident Commander: CISO Edition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&family=Oxanium:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050510;--surface:#0c0c1a;--surface2:#12122a;
+  --border:#1a1a3a;--text:#c8cad0;--text-dim:#555;
+  --neon-cyan:#00e5ff;--neon-pink:#ff0060;
+  --neon-purple:#b347ea;--neon-green:#00ff9d;--neon-gold:#ffd700;
+  --card-w:min(420px, 92vw);
+  --font-display:'Oxanium',sans-serif;
+  --font-body:'Chakra Petch',sans-serif;
+}
+html,body{
+  height:100%;overflow:hidden;
+  background:var(--bg);color:var(--text);
+  font-family:var(--font-body);
+  -webkit-tap-highlight-color:transparent;
+  touch-action:pan-y;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+#app{
+  display:flex;flex-direction:column;
+  height:100%;max-width:480px;margin:0 auto;
+  position:relative;overflow:hidden;
+}
+
+/* --- TOP BAR --- */
+.top-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 16px 6px;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  background:rgba(5,5,16,.95);backdrop-filter:blur(12px);z-index:10;
+}
+.top-bar .title{
+  font-family:var(--font-display);font-size:11px;
+  letter-spacing:3px;text-transform:uppercase;
+  color:var(--neon-cyan);text-shadow:0 0 10px rgba(0,229,255,.3);
+}
+.top-bar-right{display:flex;align-items:center;gap:12px;}
+.week-badge{
+  font-family:var(--font-display);font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);
+}
+.week-badge span{color:var(--text);font-weight:700;font-size:14px;}
+.log-btn{
+  width:28px;height:28px;border-radius:6px;
+  background:var(--surface);border:1px solid var(--border);
+  color:var(--text-dim);font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all .2s;flex-shrink:0;
+}
+.log-btn:hover{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+
+/* --- HUD --- */
+.hud{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:6px;padding:10px 12px;flex-shrink:0;
+  background:var(--surface);border-bottom:1px solid var(--border);
+}
+.stat-box{text-align:center;}
+.stat-label{font-family:var(--font-display);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px;}
+.stat-val{font-family:var(--font-display);font-size:22px;font-weight:700;transition:all .4s ease;}
+.stat-bar{height:3px;border-radius:2px;margin-top:4px;background:rgba(255,255,255,.06);overflow:hidden;}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width .6s cubic-bezier(.22,1,.36,1);}
+.stat-box[data-stat="budget"] .stat-val{color:var(--neon-green)}
+.stat-box[data-stat="budget"] .stat-bar-fill{background:var(--neon-green)}
+.stat-box[data-stat="rep"] .stat-val{color:var(--neon-cyan)}
+.stat-box[data-stat="rep"] .stat-bar-fill{background:var(--neon-cyan)}
+.stat-box[data-stat="risk"] .stat-val{color:var(--neon-pink)}
+.stat-box[data-stat="risk"] .stat-bar-fill{background:var(--neon-pink)}
+.stat-box[data-stat="bandwidth"] .stat-val{color:var(--neon-purple)}
+.stat-box[data-stat="bandwidth"] .stat-bar-fill{background:var(--neon-purple)}
+.stat-val.flash-up{animation:flashUp .6s ease}
+.stat-val.flash-down{animation:flashDown .6s ease}
+@keyframes flashUp{0%{transform:scale(1.4);filter:brightness(2)}100%{transform:scale(1);filter:brightness(1)}}
+@keyframes flashDown{0%{transform:scale(1.4);filter:brightness(2)}100%{transform:scale(1);filter:brightness(1)}}
+.stat-val.critical{animation:critPulse 1s ease infinite}
+@keyframes critPulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* --- CARD AREA --- */
+.card-area{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:12px;}
+
+/* --- CARD --- */
+.card{
+  width:var(--card-w);background:var(--surface);border-radius:16px;
+  border:1px solid var(--border);position:relative;
+  box-shadow:0 0 60px rgba(0,0,0,.6),0 0 1px rgba(0,229,255,.2);
+  transition:box-shadow .3s;cursor:grab;user-select:none;-webkit-user-select:none;
+  transform-origin:center center;will-change:transform;
+}
+.card.swiping{cursor:grabbing;transition:none}
+.card.animate-enter{animation:cardEnter .35s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes cardEnter{0%{transform:translateY(40px) scale(.95);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+.card::before{
+  content:"";position:absolute;inset:-1px;border-radius:17px;
+  background:conic-gradient(from 0deg,var(--neon-cyan),var(--neon-pink),var(--neon-purple),var(--neon-cyan));
+  opacity:0;transition:opacity .4s;z-index:-1;filter:blur(1px);
+}
+.card:hover::before,.card.swiping::before{opacity:.6}
+
+.card-type{
+  position:absolute;top:12px;right:12px;font-family:var(--font-display);font-size:9px;
+  letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;
+  background:rgba(0,0,0,.6);color:var(--text-dim);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.08);z-index:2;
+}
+.card-type.boss{background:rgba(255,0,60,.2);color:var(--neon-pink);border-color:rgba(255,0,60,.3)}
+.card-type.legendary{background:rgba(255,215,0,.15);color:var(--neon-gold);border-color:rgba(255,215,0,.2)}
+
+/* --- CARD VISUAL (replaces images) --- */
+.card-visual{
+  height:150px;overflow:hidden;border-radius:16px 16px 0 0;
+  position:relative;display:flex;align-items:center;justify-content:center;
+}
+.card-visual-bg{position:absolute;inset:0;opacity:.8;}
+.card-visual-bg::after{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.card-visual-icon{font-size:56px;position:relative;z-index:1;filter:drop-shadow(0 4px 20px rgba(0,0,0,.5));animation:iconFloat 4s ease-in-out infinite;}
+@keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.card-visual::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,var(--surface));z-index:1;pointer-events:none;}
+
+.card-visual.t-incident .card-visual-bg{background:linear-gradient(135deg,#1a0a0a,#2d0a1a,#0a0a2d)}
+.card-visual.t-vendor .card-visual-bg{background:linear-gradient(135deg,#0a1a0a,#0a2d1a,#0a1a2d)}
+.card-visual.t-audit .card-visual-bg{background:linear-gradient(135deg,#0a0a1a,#1a0a2d,#2d0a2d)}
+.card-visual.t-people .card-visual-bg{background:linear-gradient(135deg,#1a0a2d,#2d0a1a,#1a1a0a)}
+.card-visual.t-strategy .card-visual-bg{background:linear-gradient(135deg,#0a1a1a,#0a2d2d,#1a0a2d)}
+.card-visual.t-legendary .card-visual-bg{background:linear-gradient(135deg,#2d2d0a,#3d1a0a,#2d0a1a)}
+.card-visual.t-boss .card-visual-bg{background:linear-gradient(135deg,#2d0a0a,#3d0a0a,#1a0a0a);animation:bossPulse 2s ease infinite}
+@keyframes bossPulse{0%,100%{opacity:.8}50%{opacity:1}}
+
+.card-content{padding:18px 20px 14px;}
+.card-title{font-family:var(--font-display);font-size:18px;font-weight:700;color:#fff;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;text-shadow:0 0 12px rgba(0,229,255,.15);}
+.card-text{font-size:15px;line-height:1.55;color:var(--text);margin-bottom:12px;}
+.card-flavor{font-size:12px;font-style:italic;color:var(--text-dim);border-top:1px solid var(--border);padding-top:10px;}
+
+.swipe-hint{
+  position:absolute;top:0;bottom:0;width:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  opacity:0;transition:opacity .2s;pointer-events:none;z-index:5;border-radius:16px;padding:0 16px;text-align:center;
+}
+.swipe-hint.left{left:0;background:linear-gradient(to right,rgba(0,229,255,.15),transparent);color:var(--neon-cyan);}
+.swipe-hint.right{right:0;background:linear-gradient(to left,rgba(255,0,96,.15),transparent);color:var(--neon-pink);}
+
+/* --- CHOICES --- */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px 12px;flex-shrink:0;}
+.choice-btn{
+  font-family:var(--font-display);font-size:12px;letter-spacing:1px;text-transform:uppercase;
+  padding:14px 10px;border:1px solid var(--border);border-radius:10px;
+  background:var(--surface);color:var(--text);cursor:pointer;transition:all .2s;
+}
+.choice-btn:active{transform:scale(.97)}
+.choice-btn.left:hover,.choice-btn.left:focus{border-color:var(--neon-cyan);color:var(--neon-cyan);box-shadow:0 0 20px rgba(0,229,255,.1);}
+.choice-btn.right:hover,.choice-btn.right:focus{border-color:var(--neon-pink);color:var(--neon-pink);box-shadow:0 0 20px rgba(255,0,96,.1);}
+.choice-impact{display:block;font-size:9px;letter-spacing:1px;color:var(--text-dim);margin-top:4px;font-weight:300;}
+
+/* --- BOSS / LEGENDARY --- */
+#app.boss-active{animation:bossGlow 2s ease infinite}
+#app.boss-active .card{border-color:rgba(255,0,60,.4);box-shadow:0 0 40px rgba(255,0,60,.15)}
+@keyframes bossGlow{0%,100%{box-shadow:inset 0 0 30px rgba(255,0,60,.03)}50%{box-shadow:inset 0 0 60px rgba(255,0,60,.08)}}
+.card.legendary-card{border-color:rgba(255,215,0,.3);box-shadow:0 0 50px rgba(255,215,0,.1)}
+.card.legendary-card::before{background:conic-gradient(from 0deg,var(--neon-gold),#ff8c00,var(--neon-gold),#fff4a0,var(--neon-gold));opacity:.5;}
+
+/* --- OVERLAYS --- */
+.overlay{
+  position:absolute;inset:0;z-index:100;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:30px;text-align:center;
+  background:rgba(5,5,16,.97);backdrop-filter:blur(20px);
+  opacity:0;pointer-events:none;transition:opacity .5s ease;
+}
+.overlay.active{opacity:1;pointer-events:all}
+.overlay-icon{font-size:64px;margin-bottom:16px}
+.overlay-title{font-family:var(--font-display);font-size:28px;font-weight:700;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.overlay-sub{font-size:15px;color:var(--text-dim);margin-bottom:24px;max-width:320px;line-height:1.5}
+.overlay-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:24px;width:100%;max-width:280px;}
+.overlay-stat{padding:10px;border-radius:8px;background:rgba(255,255,255,.03);border:1px solid var(--border);font-family:var(--font-display);}
+.overlay-stat .label{font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase}
+.overlay-stat .val{font-size:20px;font-weight:700;margin-top:2px}
+.overlay-btn{
+  font-family:var(--font-display);font-size:13px;letter-spacing:2px;text-transform:uppercase;
+  padding:14px 36px;border-radius:8px;border:1px solid var(--neon-cyan);
+  background:transparent;color:var(--neon-cyan);cursor:pointer;transition:all .2s;
+}
+.overlay-btn:hover{background:rgba(0,229,255,.1);box-shadow:0 0 20px rgba(0,229,255,.2)}
+.overlay-btn.danger{border-color:var(--neon-pink);color:var(--neon-pink)}
+.overlay-btn.danger:hover{background:rgba(255,0,96,.1)}
+.overlay.loss .overlay-title{color:var(--neon-pink);text-shadow:0 0 20px rgba(255,0,60,.4)}
+.overlay.win .overlay-title{color:var(--neon-gold);text-shadow:0 0 20px rgba(255,215,0,.4)}
+.overlay.start .overlay-title{color:var(--neon-cyan);text-shadow:0 0 20px rgba(0,229,255,.4)}
+
+/* --- PROGRESS --- */
+.progress-bar{height:3px;flex-shrink:0;background:rgba(255,255,255,.04)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-purple));transition:width .6s cubic-bezier(.22,1,.36,1);}
+
+/* --- HISTORY DRAWER (from top) --- */
+.history-backdrop{position:absolute;inset:0;z-index:45;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
+.history-backdrop.open{opacity:1;pointer-events:all}
+.history-drawer{
+  position:absolute;top:0;left:0;right:0;max-height:60%;z-index:50;
+  background:rgba(12,12,26,.98);border-bottom:1px solid var(--border);
+  border-radius:0 0 16px 16px;transform:translateY(-100%);
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+  overflow-y:auto;padding:20px 16px;backdrop-filter:blur(16px);
+}
+.history-drawer.open{transform:translateY(0)}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+.history-drawer h3{font-family:var(--font-display);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-dim);}
+.history-close{
+  width:28px;height:28px;border-radius:6px;background:transparent;
+  border:1px solid var(--border);color:var(--text-dim);font-size:16px;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.history-close:hover{border-color:var(--neon-pink);color:var(--neon-pink)}
+.history-item{font-size:12px;color:var(--text-dim);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.history-item:last-child{border:none}
+.history-empty{font-size:12px;color:var(--text-dim);font-style:italic}
+
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.shake{animation:shake .3s ease}
+@keyframes toastIn{0%{opacity:0;transform:translateX(-50%) translateY(10px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+@media(min-width:600px){.card-visual{height:170px}.card-content{padding:22px 26px 18px}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="top-bar">
+    <div class="title">Incident Commander</div>
+    <div class="top-bar-right">
+      <div class="week-badge">Week <span id="week-num">1</span> / 52</div>
+      <button class="log-btn" id="log-btn" onclick="toggleHistory()" title="CISO Logs">&#9776;</button>
+    </div>
+  </div>
+  <div class="hud">
+    <div class="stat-box" data-stat="budget"><div class="stat-label">Budget</div><div class="stat-val" id="hud-budget">$40k</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-budget" style="width:40%"></div></div></div>
+    <div class="stat-box" data-stat="rep"><div class="stat-label">Trust</div><div class="stat-val" id="hud-rep">50</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-rep" style="width:50%"></div></div></div>
+    <div class="stat-box" data-stat="risk"><div class="stat-label">Risk</div><div class="stat-val" id="hud-risk">20%</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-risk" style="width:20%"></div></div></div>
+    <div class="stat-box" data-stat="bandwidth"><div class="stat-label">Team</div><div class="stat-val" id="hud-bandwidth">30</div><div class="stat-bar"><div class="stat-bar-fill" id="bar-bandwidth" style="width:30%"></div></div></div>
+  </div>
+  <div class="card-area" id="card-area">
+    <div class="card" id="game-card">
+      <div class="swipe-hint left" id="hint-left"></div>
+      <div class="swipe-hint right" id="hint-right"></div>
+      <div class="card-type" id="card-type"></div>
+      <div class="card-visual" id="card-visual"><div class="card-visual-bg"></div><div class="card-visual-icon" id="card-icon"></div></div>
+      <div class="card-content">
+        <div class="card-title" id="card-title"></div>
+        <div class="card-text" id="card-text"></div>
+        <div class="card-flavor" id="card-flavor"></div>
+      </div>
+    </div>
+  </div>
+  <div class="choices">
+    <button class="choice-btn left" id="btn-a" onclick="game.choose('a')"><span id="btn-a-text"></span><span class="choice-impact" id="btn-a-impact"></span></button>
+    <button class="choice-btn right" id="btn-b" onclick="game.choose('b')"><span id="btn-b-text"></span><span class="choice-impact" id="btn-b-impact"></span></button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div class="history-backdrop" id="history-backdrop" onclick="closeHistory()"></div>
+  <div class="history-drawer" id="history-drawer">
+    <div class="history-header"><h3>CISO Logs</h3><button class="history-close" onclick="closeHistory()">&times;</button></div>
+    <div id="history-list"><div class="history-empty">No decisions yet.</div></div>
+  </div>
+  <div class="overlay start active" id="start-screen">
+    <div class="overlay-icon">&#128737;</div>
+    <div class="overlay-title">Incident Commander</div>
+    <div class="overlay-sub">CISO Edition &mdash; Survive 52 weeks as the Chief Information Security Officer. Every decision costs something. If any metric flatlines, you're fired.</div>
+    <button class="overlay-btn" onclick="game.start()">Accept the Role</button>
+  </div>
+  <div class="overlay loss" id="gameover-screen">
+    <div class="overlay-icon" id="go-icon"></div>
+    <div class="overlay-title" id="go-title"></div>
+    <div class="overlay-sub" id="go-sub"></div>
+    <div class="overlay-stats" id="go-stats"></div>
+    <button class="overlay-btn danger" onclick="game.start()">Try Again</button>
+  </div>
+  <div class="overlay win" id="win-screen">
+    <div class="overlay-icon">&#127942;</div>
+    <div class="overlay-title">You Survived</div>
+    <div class="overlay-sub">The Board has approved your contract renewal. The analysts are confused, but impressed.</div>
+    <div class="overlay-stats" id="win-stats"></div>
+    <button class="overlay-btn" onclick="game.start()">Start Year 2</button>
+  </div>
+</div>
+
+<script>
+const ICONS={ransomware:'\u{1F480}',sales_override:'\u{1F91D}',log4j:'\u26A0\uFE0F',audit_fail:'\u{1F4CB}',angel_investor:'\u{1F4B0}',fbi_raid:'\u{1F6A8}',apt_1:'\u{1F512}',apt_2:'\u{1F50D}',apt_3:'\u{1F4E5}',solar_winds:'\u{1F3ED}',insider_threat:'\u{1F621}',gdpr_fine:'\u2696\uFE0F',crypto_miner:'\u26CF',ceo_fraud:'\u{1F9B9}',unencrypted_laptop:'\u{1F4BB}',s3_leak:'\u2601\uFE0F',legacy_legacy:'\u{1F5B3}',conf_talk:'\u{1F3A4}',vpn_day:'\u{1F510}'};
+
+function typeClass(t){
+  if(t.includes('BOSS'))return 't-boss';if(t==='LEGENDARY')return 't-legendary';
+  const l=t.toLowerCase();
+  return l==='incident'?'t-incident':l==='vendor'?'t-vendor':l==='audit'?'t-audit':l==='people'?'t-people':l==='strategy'?'t-strategy':'t-incident';
+}
+
+const S=[
+  {id:"ransomware",type:"INCIDENT",title:"Ransomware",text:"A skull pops up on the CFO's laptop. They want 50 BTC or the financial data gets leaked.",flavor:"\"We accept Bitcoin or Monero. Tick tock.\"",choice_a:"Pay $50k Ransom",choice_b:"Rebuild (3 Days)",impact_a:{budget:-25,risk:-10,rep:-5,bandwidth:0},impact_b:{budget:0,risk:5,rep:5,bandwidth:-25}},
+  {id:"sales_override",type:"VENDOR",title:"Sales Override",text:"The CRO demands we whitelist a sketchy AI tool to close a $1M deal before quarter-end.",flavor:"\"Just enable it for this one demo, please!\"",choice_a:"Block (Policy)",choice_b:"Allow (Revenue)",impact_a:{budget:0,risk:-5,rep:-15,bandwidth:0},impact_b:{budget:5,risk:20,rep:10,bandwidth:0}},
+  {id:"log4j",type:"INCIDENT",title:"Zero-Day: Log4j",text:"Critical vulnerability found in your Java stack. Patching requires downtime.",flavor:"\"It's everywhere. Even in the coffee machine.\"",choice_a:"Patch Immediately",choice_b:"Wait for Weekend",impact_a:{budget:-5,risk:-40,rep:-15,bandwidth:-20},impact_b:{budget:0,risk:30,rep:5,bandwidth:5}},
+  {id:"audit_fail",type:"AUDIT",title:"Surprise Audit",text:"The regulator walked in 2 months early. Your evidence repository is... incomplete.",flavor:"\"I'd like to see your Access Control Logs for last year.\"",choice_a:"Stall / Delay",choice_b:"Full Transparency",impact_a:{budget:0,risk:5,rep:-10,bandwidth:-10},impact_b:{budget:0,risk:15,rep:5,bandwidth:0}},
+  {id:"angel_investor",type:"LEGENDARY",title:"Angel Investor",text:"A VC is impressed by your security posture. They wrote a check specifically for your department.",flavor:"\"Security is a differentiator. Here's $50k.\"",choice_a:"Hire Staff",choice_b:"Buy New Toys",impact_a:{budget:50,risk:0,rep:10,bandwidth:30},impact_b:{budget:20,risk:-20,rep:10,bandwidth:0}},
+  {id:"fbi_raid",type:"LEGENDARY",title:"FBI Takedown",text:"The FBI seized the servers of a vendor you were worried about. The threat is gone.",flavor:"\"Ladies and gentlemen, we got him.\"",choice_a:"Celebrate",choice_b:"Analyze Logs",impact_a:{budget:0,risk:-30,rep:0,bandwidth:10},impact_b:{budget:0,risk:-40,rep:5,bandwidth:-10}},
+  {id:"apt_1",type:"BOSS PHASE 1",title:"Suspicious Login",text:"BOSS BATTLE START! An admin account just logged in from North Korea. It's 3 AM.",flavor:"Phase 1/3: Initial Access",choice_a:"Reset Password",choice_b:"Watch & Wait",impact_a:{budget:0,risk:-5,rep:0,bandwidth:-5},impact_b:{budget:0,risk:10,rep:0,bandwidth:0}},
+  {id:"apt_2",type:"BOSS PHASE 2",title:"Lateral Movement",text:"The attacker is scanning the internal network. They found the Domain Controller.",flavor:"Phase 2/3: Escalation",choice_a:"Cut Internet",choice_b:"Deploy Decoys",impact_a:{budget:-10,risk:-10,rep:-20,bandwidth:0},impact_b:{budget:0,risk:5,rep:0,bandwidth:-10}},
+  {id:"apt_3",type:"BOSS PHASE 3",title:"Data Exfiltration",text:"They are trying to upload 50GB of customer data to Dropbox.",flavor:"Phase 3/3: The Finale",choice_a:"Block IP Range",choice_b:"Let it ride (Honeypot)",impact_a:{budget:0,risk:-20,rep:10,bandwidth:0},impact_b:{budget:0,risk:50,rep:50,bandwidth:0}},
+  {id:"solar_winds",type:"INCIDENT",title:"Supply Chain Attack",text:"Our network monitoring tool just pushed a malicious update. We are beaconing to Russia.",flavor:"\"Trust no one. Not even the vendor.\"",choice_a:"Shut Down Everything",choice_b:"Patch & Pray",impact_a:{budget:0,risk:-20,rep:-10,bandwidth:-20},impact_b:{budget:0,risk:30,rep:5,bandwidth:0}},
+  {id:"insider_threat",type:"PEOPLE",title:"Disgruntled Admin",text:"A fired sysadmin still has SSH access and is deleting backups.",flavor:"\"You forgot to revoke his keys, didn't you?\"",choice_a:"Call Legal/FBI",choice_b:"Hard Reset Keys",impact_a:{budget:-10,risk:-5,rep:-10,bandwidth:-5},impact_b:{budget:0,risk:-10,rep:0,bandwidth:-10}},
+  {id:"gdpr_fine",type:"AUDIT",title:"GDPR Violation",text:"We accidentally stored EU customer data on a US server. The regulators noticed.",flavor:"\"That's a 4% global revenue fine...\"",choice_a:"Pay the Fine",choice_b:"Fight in Court",impact_a:{budget:-30,risk:-10,rep:-5,bandwidth:0},impact_b:{budget:-10,risk:10,rep:-20,bandwidth:-10}},
+  {id:"crypto_miner",type:"INCIDENT",title:"Crypto Jacking",text:"AWS bill is up 500%. Someone installed a Monero miner on our dev cluster.",flavor:"\"At least they didn't steal the data?\"",choice_a:"Kill Processes",choice_b:"Investigate Root Cause",impact_a:{budget:-5,risk:10,rep:0,bandwidth:0},impact_b:{budget:-5,risk:-10,rep:5,bandwidth:-10}},
+  {id:"ceo_fraud",type:"PEOPLE",title:"CEO Whaling",text:"Finance just wired $50k to a fake vendor because the 'CEO' emailed them urgently.",flavor:"\"It looked real! The font was the same!\"",choice_a:"Absorb Loss",choice_b:"Fire Controller",impact_a:{budget:-15,risk:0,rep:-5,bandwidth:0},impact_b:{budget:0,risk:5,rep:-10,bandwidth:-15}},
+  {id:"unencrypted_laptop",type:"INCIDENT",title:"Lost Laptop",text:"An HR manager left their laptop in an Uber. It wasn't encrypted.",flavor:"\"It has the salary spreadsheet on the desktop.\"",choice_a:"Remote Wipe (Fail?)",choice_b:"Disclose Breach",impact_a:{budget:0,risk:20,rep:0,bandwidth:0},impact_b:{budget:-5,risk:-10,rep:-20,bandwidth:-5}},
+  {id:"s3_leak",type:"INCIDENT",title:"Leaky Bucket",text:"A researcher found 1TB of customer scans in a public S3 bucket.",flavor:"\"Who set permissions to 'Public Read'?\"",choice_a:"Silent Fix",choice_b:"Public Apology",impact_a:{budget:0,risk:30,rep:-5,bandwidth:0},impact_b:{budget:0,risk:-10,rep:-15,bandwidth:-5}},
+  {id:"legacy_legacy",type:"STRATEGY",title:"Windows 2008 R2",text:"The core billing app runs on a server that hasn't been patched since 2015.",flavor:"\"If we reboot it, it might never turn back on.\"",choice_a:"Keep Running",choice_b:"Rewrite App ($$$)",impact_a:{budget:0,risk:15,rep:0,bandwidth:0},impact_b:{budget:-30,risk:-20,rep:5,bandwidth:-10}},
+  {id:"conf_talk",type:"PEOPLE",title:"Keynote Speaker",text:"BlackHat invited you to speak about your security program. Great PR!",flavor:"\"Please don't demo a live hack.\"",choice_a:"Accept (Reputation)",choice_b:"Decline (Focus)",impact_a:{budget:-5,risk:5,rep:20,bandwidth:-10},impact_b:{budget:0,risk:0,rep:-5,bandwidth:5}},
+  {id:"vpn_day",type:"INCIDENT",title:"VPN Zero-Day",text:"Our VPN provider just announced a critical RCE vulnerability.",flavor:"\"Everyone working remote is now a target.\"",choice_a:"Emergency Patch",choice_b:"Disable VPN",impact_a:{budget:0,risk:-20,rep:0,bandwidth:-20},impact_b:{budget:0,risk:-40,rep:-20,bandwidth:0}}
+];
+
+const game={
+  stats:{},week:1,history:[],sDeck:[],lDeck:[],bDeck:[],
+  bossMode:false,bossStage:0,cur:null,busy:false,
+
+  start(){
+    this.stats={budget:40,rep:50,risk:20,bandwidth:30};
+    this.week=1;this.history=[];this.bossMode=false;this.bossStage=0;this.busy=false;
+    this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY');
+    this.shuf(this.sDeck);
+    this.lDeck=S.filter(c=>c.type==='LEGENDARY');
+    this.bDeck=S.filter(c=>c.type.includes('BOSS')).sort((a,b)=>a.id.localeCompare(b.id));
+    document.getElementById('start-screen').classList.remove('active');
+    document.getElementById('gameover-screen').classList.remove('active');
+    document.getElementById('win-screen').classList.remove('active');
+    document.getElementById('app').classList.remove('boss-active');
+    this.draw();this.hud();this.prog();
+    document.getElementById('history-list').innerHTML='<div class="history-empty">No decisions yet.</div>';
+  },
+
+  shuf(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}},
+
+  draw(){
+    if(this.bossMode){
+      if(this.bossStage<this.bDeck.length){this.cur=this.bDeck[this.bossStage];this.render();return;}
+      else{this.bossMode=false;this.bossStage=0;this.stats.rep=Math.min(100,this.stats.rep+20);document.getElementById('app').classList.remove('boss-active');this.toast('BOSS DEFEATED! Trust +20','var(--neon-gold)');}
+    }
+    if(!this.bossMode&&this.week>3&&Math.random()<0.05){
+      this.bossMode=true;this.bossStage=0;document.getElementById('app').classList.add('boss-active');
+      this.cur=this.bDeck[0];this.toast('APT GROUP DETECTED!','var(--neon-pink)');this.render();return;
+    }
+    if(Math.random()<0.05&&this.lDeck.length){this.cur=this.lDeck[Math.floor(Math.random()*this.lDeck.length)];this.toast('LEGENDARY EVENT!','var(--neon-gold)');this.render();return;}
+    if(!this.sDeck.length){this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY');this.shuf(this.sDeck);}
+    this.cur=this.sDeck.pop();this.render();
+  },
+
+  render(){
+    const c=this.cur;if(!c)return;
+    const card=document.getElementById('game-card'),te=document.getElementById('card-type'),vis=document.getElementById('card-visual'),ico=document.getElementById('card-icon');
+    document.getElementById('card-title').textContent=c.title;
+    document.getElementById('card-text').textContent=c.text;
+    document.getElementById('card-flavor').textContent=c.flavor;
+    te.textContent=c.type;te.className='card-type';
+    if(c.type.includes('BOSS'))te.classList.add('boss');
+    else if(c.type==='LEGENDARY')te.classList.add('legendary');
+    vis.className='card-visual '+typeClass(c.type);
+    ico.textContent=ICONS[c.id]||'\u{1F6E1}';
+    card.classList.remove('legendary-card');
+    if(c.type==='LEGENDARY')card.classList.add('legendary-card');
+    document.getElementById('btn-a-text').textContent=c.choice_a;
+    document.getElementById('btn-b-text').textContent=c.choice_b;
+    document.getElementById('btn-a-impact').textContent=this.impStr(c.impact_a);
+    document.getElementById('btn-b-impact').textContent=this.impStr(c.impact_b);
+    document.getElementById('hint-left').textContent=c.choice_a;
+    document.getElementById('hint-right').textContent=c.choice_b;
+    card.classList.remove('animate-enter');void card.offsetWidth;card.classList.add('animate-enter');
+  },
+
+  impStr(im){const p=[];for(const[k,v]of Object.entries(im)){if(v>0)p.push('\u2191 '+k.toUpperCase());else if(v<0)p.push('\u2193 '+k.toUpperCase());}return p.join('  ')||'No impact';},
+
+  choose(ch){
+    if(this.busy)return;this.busy=true;
+    const c=this.cur,im=ch==='a'?c.impact_a:c.impact_b,ct=ch==='a'?c.choice_a:c.choice_b;
+    const card=document.getElementById('game-card'),dir=ch==='a'?-1:1;
+    card.style.transition='transform .35s ease, opacity .35s ease';
+    card.style.transform=`translateX(${dir*120}%) rotate(${dir*15}deg)`;card.style.opacity='0';
+    setTimeout(()=>{
+      const prev={...this.stats};
+      for(const[k,v]of Object.entries(im))this.stats[k]=Math.max(0,Math.min(100,this.stats[k]+v));
+      this.history.unshift(`Week ${this.week}: ${ct}`);this.histUI();
+      this.week++;if(this.bossMode)this.bossStage++;
+      this.flash(prev);this.hud();this.prog();
+      if(this.checkEnd()){this.busy=false;return;}
+      if(this.checkWin()){this.busy=false;return;}
+      card.style.transition='none';card.style.transform='translateX(0) rotate(0)';card.style.opacity='1';
+      this.draw();this.busy=false;
+    },350);
+  },
+
+  flash(prev){for(const k of['budget','rep','risk','bandwidth']){const el=document.getElementById('hud-'+k);el.classList.remove('flash-up','flash-down');if(this.stats[k]>prev[k]){void el.offsetWidth;el.classList.add('flash-up');}else if(this.stats[k]<prev[k]){void el.offsetWidth;el.classList.add('flash-down');}}},
+
+  hud(){
+    const s=this.stats;
+    document.getElementById('hud-budget').textContent='$'+s.budget+'k';
+    document.getElementById('hud-rep').textContent=s.rep;
+    document.getElementById('hud-risk').textContent=s.risk+'%';
+    document.getElementById('hud-bandwidth').textContent=s.bandwidth;
+    document.getElementById('bar-budget').style.width=s.budget+'%';
+    document.getElementById('bar-rep').style.width=s.rep+'%';
+    document.getElementById('bar-risk').style.width=s.risk+'%';
+    document.getElementById('bar-bandwidth').style.width=s.bandwidth+'%';
+    document.getElementById('week-num').textContent=this.week;
+    for(const k of['budget','rep','bandwidth'])document.getElementById('hud-'+k).classList.toggle('critical',this.stats[k]<=15);
+    document.getElementById('hud-risk').classList.toggle('critical',this.stats.risk>=85);
+  },
+
+  prog(){document.getElementById('progress-fill').style.width=Math.min(100,Math.round((this.week/52)*100))+'%';},
+
+  histUI(){document.getElementById('history-list').innerHTML=this.history.slice(0,20).map(h=>`<div class="history-item">${h}</div>`).join('');},
+
+  checkEnd(){
+    const s=this.stats;let r=null,i='',sub='';
+    if(s.risk>=100){r='DATA BREACH';i='\u{1F480}';sub='The New York Times just published your emails. Congress is calling.';}
+    else if(s.budget<=0){r='BANKRUPTCY';i='\u{1F4B8}';sub='The CFO dissolved your department. You now work at Best Buy.';}
+    else if(s.rep<=0){r='FIRED';i='\u{1F4C9}';sub="The Board voted 10-0 to terminate your contract. Your badge doesn't work.";}
+    else if(s.bandwidth<=0){r='BURNOUT';i='\u{1F629}';sub='Your entire team quit on the same day. You are the only one left.';}
+    if(!r)return false;
+    document.getElementById('app').classList.add('shake');setTimeout(()=>document.getElementById('app').classList.remove('shake'),300);
+    document.getElementById('go-icon').textContent=i;document.getElementById('go-title').textContent=r;document.getElementById('go-sub').textContent=sub;
+    document.getElementById('go-stats').innerHTML=this.oStats();
+    setTimeout(()=>document.getElementById('gameover-screen').classList.add('active'),400);return true;
+  },
+
+  checkWin(){if(this.week<52)return false;document.getElementById('win-stats').innerHTML=this.oStats();setTimeout(()=>document.getElementById('win-screen').classList.add('active'),400);return true;},
+
+  oStats(){const s=this.stats;return `<div class="overlay-stat"><div class="label">Budget</div><div class="val" style="color:var(--neon-green)">$${s.budget}k</div></div><div class="overlay-stat"><div class="label">Trust</div><div class="val" style="color:var(--neon-cyan)">${s.rep}</div></div><div class="overlay-stat"><div class="label">Risk</div><div class="val" style="color:var(--neon-pink)">${s.risk}%</div></div><div class="overlay-stat"><div class="label">Team</div><div class="val" style="color:var(--neon-purple)">${s.bandwidth}</div></div>`;},
+
+  toast(msg,color){
+    const t=document.createElement('div');
+    t.style.cssText=`position:fixed;top:20%;left:50%;transform:translateX(-50%);z-index:200;font-family:var(--font-display);font-size:14px;letter-spacing:3px;text-transform:uppercase;color:${color};background:rgba(5,5,16,.9);border:1px solid ${color};padding:10px 24px;border-radius:8px;box-shadow:0 0 30px ${color}40;animation:toastIn .4s ease forwards;pointer-events:none;`;
+    t.textContent=msg;document.body.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(()=>t.remove(),400);},1600);
+  }
+};
+
+// SWIPE
+(function(){
+  const card=document.getElementById('game-card'),hL=document.getElementById('hint-left'),hR=document.getElementById('hint-right');
+  let sx=0,dx=0,drag=false;const T=80;
+  function st(e){if(game.busy)return;drag=true;sx=e.touches?e.touches[0].clientX:e.clientX;card.classList.add('swiping');card.style.transition='none';}
+  function mv(e){if(!drag)return;const x=e.touches?e.touches[0].clientX:e.clientX;dx=x-sx;card.style.transform=`translateX(${dx}px) rotate(${dx*0.08}deg)`;const p=Math.min(1,Math.abs(dx)/T);if(dx<-20){hL.style.opacity=p;hR.style.opacity=0;}else if(dx>20){hR.style.opacity=p;hL.style.opacity=0;}else{hL.style.opacity=0;hR.style.opacity=0;}}
+  function en(){if(!drag)return;drag=false;card.classList.remove('swiping');hL.style.opacity=0;hR.style.opacity=0;if(Math.abs(dx)>=T)game.choose(dx<0?'a':'b');else{card.style.transition='transform .3s ease';card.style.transform='translateX(0) rotate(0)';card.style.opacity='1';}dx=0;}
+  card.addEventListener('touchstart',st,{passive:true});card.addEventListener('touchmove',mv,{passive:true});card.addEventListener('touchend',en);
+  card.addEventListener('mousedown',st);window.addEventListener('mousemove',mv);window.addEventListener('mouseup',en);
+})();
+
+function toggleHistory(){const d=document.getElementById('history-drawer'),b=document.getElementById('history-backdrop');const o=!d.classList.contains('open');d.classList.toggle('open',o);b.classList.toggle('open',o);}
+function closeHistory(){document.getElementById('history-drawer').classList.remove('open');document.getElementById('history-backdrop').classList.remove('open');}
+
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')game.choose('a');if(e.key==='ArrowRight'||e.key==='d')game.choose('b');if(e.key==='Escape')closeHistory();});
+</script>
+</body>
+</html>
