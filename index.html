@@ -20,6 +20,12 @@
   --font-display:'Oxanium',sans-serif;
   --font-body:'Chakra Petch',sans-serif;
   --anim-speed:350ms;
+  --scanline-opacity:.03;
+}
+html.light{
+  --bg:#e8e8f0;--surface:#f2f2fa;--surface2:#e0e0ee;
+  --border:#c0c0d0;--text:#1a1a2e;--text-dim:#888;
+  --scanline-opacity:0;
 }
 html,body{
   height:100%;overflow:hidden;
@@ -30,7 +36,7 @@ html,body{
 }
 body::after{
   content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,var(--scanline-opacity)) 2px,rgba(0,0,0,var(--scanline-opacity)) 4px);
 }
 #app{display:flex;flex-direction:column;height:100%;max-width:480px;margin:0 auto;position:relative;overflow:hidden;}
 
@@ -176,6 +182,23 @@ body::after{
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .shake{animation:shake .3s ease}
 @keyframes toastIn{0%{opacity:0;transform:translateX(-50%) translateY(10px)}100%{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* PERKS */
+.perks-list{display:flex;flex-wrap:wrap;gap:6px;width:100%;}
+.perk-chip{font-family:var(--font-display);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px;}
+.perk-chip.locked{opacity:.4;cursor:default}
+.perk-chip.active{border-color:var(--neon-green);color:var(--neon-green);background:rgba(0,255,157,.06)}
+.perk-chip.unlocked{border-color:var(--neon-cyan);color:var(--neon-cyan)}
+.perk-chip .perk-icon{font-size:12px}
+.perk-cost{font-size:8px;color:var(--text-dim)}
+
+/* LIGHT THEME OVERRIDES */
+html.light .overlay{background:rgba(232,232,240,.97)}
+html.light .card{box-shadow:0 4px 30px rgba(0,0,0,.1),0 0 1px rgba(0,229,255,.2)}
+html.light .drawer{background:rgba(242,242,250,.98)}
+html.light .card-visual-bg::after{background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px)}
+html.light .card-visual::after{background:linear-gradient(to bottom,transparent 40%,var(--surface))}
+
 @media(min-width:600px){.card-visual{height:170px}.card-content{padding:22px 26px 18px}}
 </style>
 </head>
@@ -238,6 +261,24 @@ body::after{
         <button class="setting-opt" onclick="setSetting('preview',false,this)">Off</button>
       </div>
     </div>
+    <div class="setting-row">
+      <div class="setting-label">Theme</div>
+      <div class="setting-options">
+        <button class="setting-opt active" onclick="setSetting('theme','dark',this)">Dark</button>
+        <button class="setting-opt" onclick="setSetting('theme','light',this)">Light</button>
+      </div>
+    </div>
+    <div class="setting-row">
+      <div class="setting-label">Sound</div>
+      <div class="setting-options">
+        <button class="setting-opt active" onclick="setSetting('sound',true,this)">On</button>
+        <button class="setting-opt" onclick="setSetting('sound',false,this)">Off</button>
+      </div>
+    </div>
+    <div class="setting-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+      <div class="setting-label">Perks (unlocked across runs)</div>
+      <div id="perks-list" class="perks-list"></div>
+    </div>
   </div>
 
   <!-- START -->
@@ -247,9 +288,9 @@ body::after{
     <div class="overlay-sub">Survive 52 weeks as the CISO. Every decision costs something. If any metric flatlines, you're fired.</div>
     <div class="diff-label">Select Difficulty</div>
     <div class="diff-select">
-      <button class="diff-btn" onclick="selDiff('easy',this)">Easy<span class="diff-desc">$60k / 60 Trust / 10% Risk / 50 Team</span></button>
-      <button class="diff-btn sel" onclick="selDiff('normal',this)">Normal<span class="diff-desc">$40k / 50 Trust / 20% Risk / 30 Team</span></button>
-      <button class="diff-btn" onclick="selDiff('hard',this)">Hard<span class="diff-desc">$25k / 35 Trust / 35% Risk / 20 Team</span></button>
+      <button class="diff-btn" onclick="selDiff('easy',this)">Easy<span class="diff-desc">$75k / 60 Trust / 10% Risk / 50 Team</span></button>
+      <button class="diff-btn sel" onclick="selDiff('normal',this)">Normal<span class="diff-desc">$55k / 50 Trust / 20% Risk / 30 Team</span></button>
+      <button class="diff-btn" onclick="selDiff('hard',this)">Hard<span class="diff-desc">$35k / 35 Trust / 35% Risk / 20 Team</span></button>
     </div>
     <button class="overlay-btn" onclick="game.start()">Accept the Role</button>
   </div>
@@ -282,12 +323,12 @@ body::after{
 // CONFIG
 // ============================================================
 const DIFF={
-  easy:{budget:60,rep:60,risk:10,bandwidth:50},
-  normal:{budget:40,rep:50,risk:20,bandwidth:30},
-  hard:{budget:25,rep:35,risk:35,bandwidth:20}
+  easy:{budget:75,rep:60,risk:10,bandwidth:50},
+  normal:{budget:55,rep:50,risk:20,bandwidth:30},
+  hard:{budget:35,rep:35,risk:35,bandwidth:20}
 };
 let selectedDiff='normal';
-let settings={speed:350,preview:true};
+let settings={speed:350,preview:true,theme:'dark',sound:true};
 
 function selDiff(d,el){
   selectedDiff=d;
@@ -297,9 +338,88 @@ function selDiff(d,el){
 function setSetting(key,val,el){
   if(key==='speed'){settings.speed=val;document.documentElement.style.setProperty('--anim-speed',val+'ms');}
   if(key==='preview'){settings.preview=val;if(game.cur)game.render();}
+  if(key==='theme'){settings.theme=val;document.documentElement.classList.toggle('light',val==='light');}
+  if(key==='sound'){settings.sound=val;}
   el.parentElement.querySelectorAll('.setting-opt').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
 }
+
+// ============================================================
+// SOUND (Web Audio API - no external files)
+// ============================================================
+const SFX={
+  ctx:null,
+  init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)();},
+  play(type){
+    if(!settings.sound)return;
+    this.init();
+    const ctx=this.ctx,now=ctx.currentTime;
+    const osc=ctx.createOscillator(),gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    if(type==='swipe'){osc.type='sine';osc.frequency.setValueAtTime(300,now);osc.frequency.exponentialRampToValueAtTime(150,now+0.15);gain.gain.setValueAtTime(0.08,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.15);osc.start(now);osc.stop(now+0.15);}
+    else if(type==='stat_up'){osc.type='sine';osc.frequency.setValueAtTime(400,now);osc.frequency.exponentialRampToValueAtTime(800,now+0.12);gain.gain.setValueAtTime(0.06,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.12);osc.start(now);osc.stop(now+0.12);}
+    else if(type==='stat_down'){osc.type='sine';osc.frequency.setValueAtTime(500,now);osc.frequency.exponentialRampToValueAtTime(200,now+0.15);gain.gain.setValueAtTime(0.06,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.15);osc.start(now);osc.stop(now+0.15);}
+    else if(type==='boss'){osc.type='sawtooth';osc.frequency.setValueAtTime(80,now);osc.frequency.exponentialRampToValueAtTime(40,now+0.5);gain.gain.setValueAtTime(0.1,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.5);osc.start(now);osc.stop(now+0.5);}
+    else if(type==='legendary'){osc.type='sine';osc.frequency.setValueAtTime(500,now);osc.frequency.setValueAtTime(700,now+0.1);osc.frequency.setValueAtTime(900,now+0.2);gain.gain.setValueAtTime(0.07,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.4);osc.start(now);osc.stop(now+0.4);}
+    else if(type==='wildcard'){osc.type='triangle';osc.frequency.setValueAtTime(600,now);osc.frequency.setValueAtTime(800,now+0.1);osc.frequency.setValueAtTime(1000,now+0.2);gain.gain.setValueAtTime(0.06,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.35);osc.start(now);osc.stop(now+0.35);}
+    else if(type==='gameover'){osc.type='sawtooth';osc.frequency.setValueAtTime(300,now);osc.frequency.exponentialRampToValueAtTime(50,now+0.8);gain.gain.setValueAtTime(0.1,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.8);osc.start(now);osc.stop(now+0.8);}
+    else if(type==='win'){osc.type='sine';osc.frequency.setValueAtTime(400,now);osc.frequency.setValueAtTime(500,now+0.15);osc.frequency.setValueAtTime(600,now+0.3);osc.frequency.setValueAtTime(800,now+0.45);gain.gain.setValueAtTime(0.07,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.7);osc.start(now);osc.stop(now+0.7);}
+  }
+};
+
+// ============================================================
+// PERKS (persist via localStorage)
+// ============================================================
+const PERKS=[
+  {id:'cyber_insurance',name:'Cyber Insurance',icon:'\u{1F6E1}',desc:'Start with -5 Risk',cost:1,effect:{risk:-5}},
+  {id:'siem',name:'SIEM',icon:'\u{1F4CA}',desc:'Start with +5 Trust',cost:2,effect:{rep:5}},
+  {id:'mdr',name:'MDR Service',icon:'\u{1F50D}',desc:'Start with +10 Team',cost:2,effect:{bandwidth:10}},
+  {id:'budget_reserve',name:'Budget Reserve',icon:'\u{1F4B0}',desc:'Start with +10 Budget',cost:1,effect:{budget:10}},
+  {id:'ir_retainer',name:'IR Retainer',icon:'\u{1F4DE}',desc:'Start with -10 Risk',cost:3,effect:{risk:-10}}
+];
+let perkState={wins:0,unlocked:[],active:[]};
+
+function loadPerks(){
+  try{const d=localStorage.getItem('ic_perks');if(d)perkState=JSON.parse(d);}catch(e){}
+}
+function savePerks(){
+  try{localStorage.setItem('ic_perks',JSON.stringify(perkState));}catch(e){}
+}
+function renderPerks(){
+  const el=document.getElementById('perks-list');if(!el)return;
+  el.innerHTML=PERKS.map(p=>{
+    const unlocked=perkState.unlocked.includes(p.id);
+    const active=perkState.active.includes(p.id);
+    const canBuy=!unlocked&&perkState.wins>=p.cost;
+    let cls='perk-chip';
+    if(active)cls+=' active';else if(unlocked)cls+=' unlocked';else cls+=' locked';
+    const action=unlocked?`togglePerk('${p.id}')`:(canBuy?`buyPerk('${p.id}')`:'');
+    return `<button class="${cls}" onclick="${action}" title="${p.desc}"><span class="perk-icon">${p.icon}</span>${p.name}${unlocked?'':' <span class=perk-cost>('+p.cost+' wins)</span>'}</button>`;
+  }).join('');
+}
+function buyPerk(id){
+  const p=PERKS.find(x=>x.id===id);if(!p)return;
+  if(perkState.wins<p.cost)return;
+  perkState.wins-=p.cost;
+  perkState.unlocked.push(id);
+  perkState.active.push(id);
+  savePerks();renderPerks();
+}
+function togglePerk(id){
+  if(perkState.active.includes(id))perkState.active=perkState.active.filter(x=>x!==id);
+  else perkState.active.push(id);
+  savePerks();renderPerks();
+}
+function getActiveEffects(){
+  const fx={budget:0,rep:0,risk:0,bandwidth:0};
+  for(const id of perkState.active){
+    const p=PERKS.find(x=>x.id===id);
+    if(p)for(const[k,v]of Object.entries(p.effect))fx[k]+=v;
+  }
+  return fx;
+}
+loadPerks();
+setTimeout(renderPerks,0);
 
 // ============================================================
 // ICONS
@@ -422,7 +542,13 @@ const game={
 
   start(){
     const d=DIFF[selectedDiff];
-    this.stats={budget:d.budget,rep:d.rep,risk:d.risk,bandwidth:d.bandwidth};
+    const fx=getActiveEffects();
+    this.stats={
+      budget:Math.max(1,Math.min(100,d.budget+fx.budget)),
+      rep:Math.max(1,Math.min(100,d.rep+fx.rep)),
+      risk:Math.max(0,Math.min(99,d.risk+fx.risk)),
+      bandwidth:Math.max(1,Math.min(100,d.bandwidth+fx.bandwidth))
+    };
     this.week=1;this.history=[];this.bossMode=false;this.bossStage=0;this.activeBoss=null;this.defeatedBosses=new Set();this.busy=false;
     this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY'&&c.type!=='WILDCARD');
     this.shuf(this.sDeck);
@@ -452,7 +578,7 @@ const game={
         this.stats.rep=Math.min(100,this.stats.rep+reward);
         this.bossMode=false;this.bossStage=0;this.activeBoss=null;
         document.getElementById('app').classList.remove('boss-active');
-        this.toast('BOSS DEFEATED! Trust +'+reward,'var(--neon-gold)');
+        this.toast('BOSS DEFEATED! Trust +'+reward,'var(--neon-gold)');SFX.play('legendary');
       }
     }
     // Try to trigger a new boss (6% chance, after minWeek, not during boss, not already defeated)
@@ -463,19 +589,19 @@ const game={
         this.bossMode=true;this.bossStage=0;this.activeBoss=boss;
         document.getElementById('app').classList.add('boss-active');
         this.cur=S.find(c=>c.id===boss.cards[0]);
-        this.toast(boss.toast,'var(--neon-pink)');
+        this.toast(boss.toast,'var(--neon-pink)');SFX.play('boss');
         this.render();return;
       }
     }
     // Wildcard (4% chance)
     if(Math.random()<0.04&&this.wcDeck.length){
       this.cur=this.wcDeck[Math.floor(Math.random()*this.wcDeck.length)];
-      this.toast('WILDCARD!','var(--neon-green)');this.render();return;
+      this.toast('WILDCARD!','var(--neon-green)');SFX.play('wildcard');this.render();return;
     }
     // Legendary (5% chance)
     if(Math.random()<0.05&&this.lDeck.length){
       this.cur=this.lDeck[Math.floor(Math.random()*this.lDeck.length)];
-      this.toast('LEGENDARY EVENT!','var(--neon-gold)');this.render();return;
+      this.toast('LEGENDARY EVENT!','var(--neon-gold)');SFX.play('legendary');this.render();return;
     }
     // Standard
     if(!this.sDeck.length){this.sDeck=S.filter(c=>!c.type.includes('BOSS')&&c.type!=='LEGENDARY'&&c.type!=='WILDCARD');this.shuf(this.sDeck);}
@@ -509,7 +635,7 @@ const game={
   impStr(im){const p=[];for(const[k,v]of Object.entries(im)){if(v>0)p.push('\u2191 '+k.toUpperCase());else if(v<0)p.push('\u2193 '+k.toUpperCase());}return p.join('  ')||'No impact';},
 
   choose(ch){
-    if(this.busy)return;this.busy=true;
+    if(this.busy)return;this.busy=true;SFX.play('swipe');
     const c=this.cur,im=ch==='a'?c.impact_a:c.impact_b,ct=ch==='a'?c.choice_a:c.choice_b;
     const card=document.getElementById('game-card'),dir=ch==='a'?-1:1;
     const spd=settings.speed;
@@ -528,7 +654,7 @@ const game={
     },spd);
   },
 
-  flash(prev){for(const k of['budget','rep','risk','bandwidth']){const el=document.getElementById('hud-'+k);el.classList.remove('flash-up','flash-down');if(this.stats[k]>prev[k]){void el.offsetWidth;el.classList.add('flash-up');}else if(this.stats[k]<prev[k]){void el.offsetWidth;el.classList.add('flash-down');}}},
+  flash(prev){let up=false,down=false;for(const k of['budget','rep','risk','bandwidth']){const el=document.getElementById('hud-'+k);el.classList.remove('flash-up','flash-down');if(this.stats[k]>prev[k]){void el.offsetWidth;el.classList.add('flash-up');up=true;}else if(this.stats[k]<prev[k]){void el.offsetWidth;el.classList.add('flash-down');down=true;}}if(down)SFX.play('stat_down');else if(up)SFX.play('stat_up');},
 
   hud(){
     const s=this.stats;
@@ -555,6 +681,7 @@ const game={
     else if(s.rep<=0){r='FIRED';i='\u{1F4C9}';sub="The Board voted 10-0 to terminate your contract. Your badge doesn't work.";}
     else if(s.bandwidth<=0){r='BURNOUT';i='\u{1F629}';sub='Your entire team quit on the same day. You are the only one left.';}
     if(!r)return false;
+    SFX.play('gameover');
     document.getElementById('app').classList.add('shake');setTimeout(()=>document.getElementById('app').classList.remove('shake'),300);
     const g=calcGrade(this.stats,this.week,true,this.defeatedBosses.size);
     document.getElementById('go-icon').textContent=i;
@@ -569,6 +696,8 @@ const game={
 
   checkWin(){
     if(this.week<52)return false;
+    SFX.play('win');
+    perkState.wins++;savePerks();renderPerks();
     const bc=this.defeatedBosses.size;
     const g=calcGrade(this.stats,this.week,false,bc);
     document.getElementById('win-title').textContent=WIN_TITLES[g.grade]||'You Survived';
