@@ -52,3 +52,6 @@ Or just double-click the file.
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+---
+*v4.0 — Difficulty modes, 48 cards, 3 bosses, wildcards, perks, sound, theme toggle.*
